@@ -207,7 +207,7 @@ let retry = null;
 function join() {
   logger.info(`joining network from ${seeds.length} bootstrap nodes`);
   async.detectSeries(seeds, (contact, done) => {
-    node.join(contact, (err) => done(null, !!err));
+    node.join(contact, (err) => done(null, !err));
   }, (err, result) => {
     if (!result) {
       logger.error('failed to join network, will retry in 1 minute');
