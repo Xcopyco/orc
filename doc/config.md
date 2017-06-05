@@ -143,5 +143,5 @@ ControlHostname = 127.0.0.1
 ; other peers. Default configuration should come with a list of known and 
 ; trusted contacts. Formatted as "{node-id} = https://{hostname}:{port}".
 [NetworkBootstrapNodes]
-78652c1229ba21a48c28e8ef73fa06f174b4a596 = https://seed.bookch.in:8443
+; c4b6d629fa19bfc50e2526ccc651960e428c191c = https://seed.bookch.in:8443
 ```

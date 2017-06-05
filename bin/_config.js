@@ -39,7 +39,7 @@ module.exports = {
 
   // Network Bootstrapping
   NetworkBootstrapNodes: {
-    '78652c1229ba21a48c28e8ef73fa06f174b4a596': 'https://seed.bookch.in:8443'
+
   },
 
   // Bandwidth Metering
