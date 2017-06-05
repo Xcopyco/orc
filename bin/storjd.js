@@ -172,7 +172,7 @@ if (!!parseInt(config.VerboseLoggingEnabled)) {
         );
       } else {
         logger.info(
-          `received response from ${ident.payload.params[0]} to `
+          `received response from ${ident.payload.params[0]} to ` +
           `${rpc.payload.id}`
         );
       }
