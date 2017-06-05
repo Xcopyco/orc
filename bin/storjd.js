@@ -173,6 +173,8 @@ if (!!parseInt(config.VerboseLoggingEnabled)) {
           `received response from ${ident.params[0]} to ${rpc.id}`
         );
       }
+
+      callback(null, data);
     },
     objectMode: true
   }));
@@ -190,6 +192,8 @@ if (!!parseInt(config.VerboseLoggingEnabled)) {
           `sending response to ${recv[0]} for ${rpc.id}`
         );
       }
+
+      callback(null, data);
     },
     objectMode: true
   }));
