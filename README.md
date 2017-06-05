@@ -1,15 +1,15 @@
 storjd
 ======
 
-[![Build Status](https://img.shields.io/travis/Storj/core.svg?style=flat-square)](https://travis-ci.org/Storj/core)
-[![Coverage Status](https://img.shields.io/coveralls/Storj/core.svg?style=flat-square)](https://coveralls.io/r/Storj/core)
-[![NPM](https://img.shields.io/npm/v/storj-lib.svg?style=flat-square)](https://www.npmjs.com/package/storj-lib)
-[![License](https://img.shields.io/badge/license-AGPL3.0-blue.svg?style=flat-square)](https://raw.githubusercontent.com/Storj/core/master/LICENSE)
+[![Build Status](https://img.shields.io/travis/Storj/storjd.svg?style=flat-square)](https://travis-ci.org/Storj/storjd)
+[![Coverage Status](https://img.shields.io/coveralls/Storj/storjd.svg?style=flat-square)](https://coveralls.io/r/Storj/storjd)
+[![NPM](https://img.shields.io/npm/v/storjd.svg?style=flat-square)](https://www.npmjs.com/package/storjd)
+[![License](https://img.shields.io/badge/license-AGPL3.0-blue.svg?style=flat-square)](https://raw.githubusercontent.com/Storj/storjd/master/LICENSE)
 
 Complete implementation of the Storj Network Protocol Version 2. This package 
-supercedes [Storj Core (`storj-lib@6.x.x`)](https://github.com/Storj/storjd/tree/v6-backports) 
+supercedes [Storj Core (`storj-lib@6.x.x`)](https://github.com/Storj/core) 
 and may be used as a daemon or as a library to control a node on the Storj 
-Network. 
+Network. **Currently in BETA**.
 
 Prerequisites
 -------------
