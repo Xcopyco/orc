@@ -163,14 +163,16 @@ if (!!parseInt(config.VerboseLoggingEnabled)) {
     transform: (data, enc, callback) => {
       let [rpc, ident] = data;
 
-      if (rpc.method) {
+      if (rpc.payload.method) {
         logger.info(
-          `received ${rpc.method} (${rpc.id}) from ${ident.params[0]} ` +
+          `received ${rpc.payload.method} (${rpc.payload.id}) from ` +
+          `${ident.payload.params[0]} ` +
           `(https://${ident.params[1].hostname}:${ident.params[1].port})`
         );
       } else {
         logger.info(
-          `received response from ${ident.params[0]} to ${rpc.id}`
+          `received response from ${ident.payload.params[0]} to `
+          `${rpc.payload.id}`
         );
       }
 
