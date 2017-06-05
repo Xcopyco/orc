@@ -167,7 +167,8 @@ if (!!parseInt(config.VerboseLoggingEnabled)) {
         logger.info(
           `received ${rpc.payload.method} (${rpc.payload.id}) from ` +
           `${ident.payload.params[0]} ` +
-          `(https://${ident.params[1].hostname}:${ident.params[1].port})`
+          `(https://${ident.payload.params[1].hostname}:` +
+          `${ident.payload.params[1].port})`
         );
       } else {
         logger.info(
