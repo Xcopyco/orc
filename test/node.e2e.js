@@ -3,15 +3,15 @@
 const { expect } = require('chai');
 const async = require('async');
 const netgen = require('./fixtures/node-generator');
-const storj = require('..');
+const orc = require('..');
 
 
-describe('@module storj-lib (end-to-end)', function() {
+describe('@module orc (end-to-end)', function() {
 
   const NUM_NODES = 12;
   const nodes = [];
   const shard = Buffer.from('i am a test shard');
-  const audit = new storj.Audit(4);
+  const audit = new orc.Audit(4);
   const offers = [];
   const capacities = [];
 
@@ -74,8 +74,8 @@ describe('@module storj-lib (end-to-end)', function() {
     this.timeout(8000);
     const renter = nodes[0];
     audit.on('finish', () => {
-      const contract = new storj.Contract({
-        data_hash: storj.utils.rmd160sha256(shard).toString('hex'),
+      const contract = new orc.Contract({
+        data_hash: orc.utils.rmd160sha256(shard).toString('hex'),
         data_size: shard.length,
         renter_hd_key: renter.contact.xpub,
         renter_hd_index: renter.contact.index,
@@ -93,7 +93,7 @@ describe('@module storj-lib (end-to-end)', function() {
         { maxOffers: 3 },
         (err, offerStream) => {
           offerStream.on('data', (offer) => {
-            let contract = storj.Contract.from(offer.contract);
+            let contract = orc.Contract.from(offer.contract);
             contract.sign('renter', renter.spartacus.privateKey);
             offers.push(offer);
             renter.resolveContractOffer(contract.get('data_hash'), offer.id,
@@ -113,11 +113,11 @@ describe('@module storj-lib (end-to-end)', function() {
     const renter = nodes[0];
     renter.authorizeConsignment(
       offers[0].contact,
-      [storj.utils.rmd160sha256(shard).toString('hex')],
+      [orc.utils.rmd160sha256(shard).toString('hex')],
       (err, result) => {
-        const uploader = storj.utils.createShardUploader(
+        const uploader = orc.utils.createShardUploader(
           offers[0].contact,
-          storj.utils.rmd160sha256(shard).toString('hex'),
+          orc.utils.rmd160sha256(shard).toString('hex'),
           result[0]
         );
         uploader.on('error', done);
@@ -143,13 +143,13 @@ describe('@module storj-lib (end-to-end)', function() {
     const renter = nodes[0];
     const farmer = offers[0].contact;
     const challenge = audit.getPrivateRecord().challenges[0];
-    const hash = storj.Contract.from(offers[0].contract).get('data_hash');
+    const hash = orc.Contract.from(offers[0].contract).get('data_hash');
     renter.auditRemoteShards(farmer, [
       { hash, challenge }
     ], (err, result) => {
       expect(err).to.equal(null);
       expect(result[0].proof).to.not.equal(null);
-      const proof = storj.Proof.verify(
+      const proof = orc.Proof.verify(
         result[0].proof,
         audit.getPrivateRecord().root,
         audit.getPrivateRecord().depth
@@ -164,7 +164,7 @@ describe('@module storj-lib (end-to-end)', function() {
     const renter = nodes[0];
     const source = offers[0].contact;
     const destination = offers[1].contact;
-    const hash = storj.utils.rmd160sha256(shard).toString('hex');
+    const hash = orc.utils.rmd160sha256(shard).toString('hex');
     renter.authorizeConsignment(destination, [hash], (err, result) => {
       expect(err).to.equal(null);
       const [token] = result;
@@ -179,11 +179,11 @@ describe('@module storj-lib (end-to-end)', function() {
     this.timeout(6000);
     const renter = nodes[0];
     const mirror = offers[1].contact;
-    const hash = storj.utils.rmd160sha256(shard).toString('hex');
+    const hash = orc.utils.rmd160sha256(shard).toString('hex');
     renter.authorizeRetrieval(mirror, [hash], (err, result) => {
       expect(err).to.equal(null);
       const [token] = result;
-      const downloader = storj.utils.createShardDownloader(
+      const downloader = orc.utils.createShardDownloader(
         mirror,
         hash,
         token
@@ -202,7 +202,7 @@ describe('@module storj-lib (end-to-end)', function() {
     const now = Date.now();
     const renter = nodes[0];
     const farmer = offers[2].contact;
-    const contract = storj.Contract.from(offers[2].contract);
+    const contract = orc.Contract.from(offers[2].contract);
     contract.set('store_end', now);
     contract.sign('renter', renter.spartacus.privateKey);
     const descriptor = contract.toObject();
@@ -231,8 +231,8 @@ describe('@module storj-lib (end-to-end)', function() {
     this.timeout(6000);
     const renter = nodes[0];
     const farmer = capacities[0][1];
-    const contract = new storj.Contract({
-      data_hash: storj.utils.rmd160sha256(shard).toString('hex'),
+    const contract = new orc.Contract({
+      data_hash: orc.utils.rmd160sha256(shard).toString('hex'),
       data_size: shard.length,
       renter_hd_key: renter.contact.xpub,
       renter_hd_index: renter.contact.index,
@@ -247,11 +247,11 @@ describe('@module storj-lib (end-to-end)', function() {
     contract.sign('renter', renter.spartacus.privateKey);
     renter.claimFarmerCapacity(farmer, contract.toObject(), (err, result) => {
       expect(err).to.equal(null);
-      const c = storj.Contract.from(result[0]);
+      const c = orc.Contract.from(result[0]);
       const t = result[1];
-      const uploader = storj.utils.createShardUploader(
+      const uploader = orc.utils.createShardUploader(
         farmer,
-        storj.utils.rmd160sha256(shard).toString('hex'),
+        orc.utils.rmd160sha256(shard).toString('hex'),
         t
       );
       expect(c.isComplete()).to.equal(true);
