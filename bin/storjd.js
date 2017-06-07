@@ -11,6 +11,7 @@ const hdkey = require('hdkey');
 const hibernate = require('kad-hibernate');
 const traverse = require('kad-traverse');
 const spartacus = require('kad-spartacus');
+const onion = require('kad-onion');
 const ms = require('ms');
 const kfs = require('kfs');
 const bunyan = require('bunyan');
@@ -19,18 +20,18 @@ const mkdirp = require('mkdirp');
 const path = require('path');
 const fs = require('fs');
 const manifest = require('../package');
-const storj = require('..');
+const orc = require('..');
 const options = require('./_config');
 const { execFileSync } = require('child_process');
 const { Transform } = require('stream');
-const config = require('rc')('storjd', options);
+const config = require('rc')('orc', options);
 const boscar = require('boscar');
 
 
 program.version(`
-  storjd    1.0.0
-  core      ${storj.version.software}
-  protocol  ${storj.version.protocol}
+  orc       1.0.0
+  core      ${orc.version.software}
+  protocol  ${orc.version.protocol}
 `);
 
 program.description(`
@@ -38,12 +39,12 @@ program.description(`
   Licensed under the GNU Affero General Public License Version 3
 `);
 
-program.option('--config <file>', 'path to a storjd configuration file');
+program.option('--config <file>', 'path to a orc configuration file');
 program.parse(process.argv);
 
-function storjutil() {
+function orctool() {
   return execFileSync(
-    path.join(__dirname, 'storjutil.js'),
+    path.join(__dirname, 'orctool.js'),
     [...arguments]
   ).toString().trim();
 }
@@ -52,15 +53,21 @@ function storjutil() {
 if (!fs.existsSync(config.PrivateExtendedKeyPath)) {
   fs.writeFileSync(
     config.PrivateExtendedKeyPath,
-    storjutil('generate-key', '--extended')
+    orctool('generate-key', '--extended')
   );
 }
 
 // Generate self-signed ssl certificate if it does not exist
 if (!fs.existsSync(config.TransportServiceKeyPath)) {
-  let [key, cert] = storjutil('generate-cert').split('\r\n\r\n');
+  let [key, cert] = orctool('generate-cert').split('\r\n\r\n');
   fs.writeFileSync(config.TransportServiceKeyPath, key);
   fs.writeFileSync(config.TransportCertificatePath, cert);
+}
+
+// Generate self-signed ssl certificate if it does not exist
+if (!fs.existsSync(config.OnionServiceKeyPath)) {
+  let key = orctool('generate-onion');
+  fs.writeFileSync(config.OnionServiceKeyPath, key);
 }
 
 // Initialize private extended key
@@ -94,7 +101,7 @@ const logger = bunyan.createLogger({
 });
 
 // Initialize transport adapter with SSL
-const transport = new storj.Transport({
+const transport = new orc.Transport({
   key: fs.readFileSync(config.TransportServiceKeyPath),
   cert: fs.readFileSync(config.TransportCertificatePath)
 });
@@ -102,26 +109,23 @@ const transport = new storj.Transport({
 // Initialize public contact data
 const contact = {
   protocol: 'https:',
-  hostname: config.PublicHostname,
   port: parseInt(config.PublicPort),
   xpub: parentkey.publicExtendedKey,
   index: parseInt(config.ChildDerivationIndex),
-  agent: `storjd-${manifest.version}/core-${storj.version.software}`
+  agent: `orc-${manifest.version}/core-${orc.version.software}`
 };
 
 // Initialize network seed contacts
-const seeds = [];
+const seeds = config.NetworkBootstrapNodes.map((str) => {
+  let { protocol, hostname, port } = url.parse(str);
 
-for (let identity in config.NetworkBootstrapNodes) {
-  let { protocol, hostname, port } = url.parse(
-    config.NetworkBootstrapNodes[identity]
-  );
+  // TODO: Load identity string from GET /
 
-  seeds.push([identity, { hostname, protocol, port }]);
-}
+  return [identity, { hostname, protocol, port }];
+});
 
 // Initialize protocol implementation
-const node = new storj.Node({
+const node = new orc.Node({
   contracts,
   shards,
   storage,
@@ -133,6 +137,11 @@ const node = new storj.Node({
   keyDerivationIndex: parseInt(config.ChildDerivationIndex)
 });
 
+// Establish onion hidden service
+node.plugin(onion({
+  rsaPrivateKey: fs.readFileSync(config.OnionServiceKeyPath).toString()
+}));
+
 // Intialize control server
 const control = new boscar.Server(node);
 
@@ -143,18 +152,6 @@ if (!!parseInt(config.BandwidthAccountingEnabled)) {
     interval: config.BandwidthAccountingReset,
     reject: ['CLAIM', 'FIND_VALUE', 'STORE', 'CONSIGN']
   }));
-}
-
-// Plugin NAT traversal if enabled
-if (!!parseInt(config.NatTraversalEnabled)) {
-  node.plugin(traverse([
-    new traverse.UPNPStrategy({
-      publicPort: parseInt(config.PublicPort)
-    }),
-    new traverse.NATPMPStrategy({
-      publicPort: parseInt(config.PublicPort)
-    })
-  ]));
 }
 
 // Use verbose logging if enabled

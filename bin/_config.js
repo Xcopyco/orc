@@ -5,7 +5,7 @@ const { existsSync, writeFileSync } = require('fs');
 const mkdirp = require('mkdirp');
 const { homedir } = require('os');
 const { join } = require('path');
-const datadir = join(homedir(), '.config/storjd');
+const datadir = join(homedir(), '.config/orc');
 
 module.exports = {
 
@@ -22,7 +22,7 @@ module.exports = {
   ShardStorageMaxOpenFiles: '50',
 
   // Trusted Renter Nodes
-  AllowDirectStorageClaims: [],
+  AllowDirectStorageClaims: ['*'],
 
   // Directory Storage
   DirectoryStorageBaseDir: datadir,
@@ -32,15 +32,13 @@ module.exports = {
   TransportCertificatePath: join(datadir, 'certificate.pem'),
 
   // Public Addressability
-  PublicHostname: '127.0.0.1',
-  PublicPort: '4000',
-  NatTraversalEnabled: '0',
-  ListenPort: '4000',
+  PublicPort: '443',
+  ListenPort: '4443',
 
   // Network Bootstrapping
-  NetworkBootstrapNodes: {
-
-  },
+  NetworkBootstrapNodes: [
+    'orcjd7xgshpovm6i.onion:443'
+  ],
 
   // Bandwidth Metering
   BandwidthAccountingEnabled: '0',
@@ -49,8 +47,11 @@ module.exports = {
 
   // Debugging/Developer
   VerboseLoggingEnabled: '1',
-  ControlPort: '4001',
-  ControlHostname: '127.0.0.1'
+  ControlPort: '4444',
+  ControlHostname: '127.0.0.1',
+
+  // Onion Service
+  OnionServicePrivateKeyPath: join(datadir, 'onion_key')
 
 };
 

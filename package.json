@@ -1,11 +1,11 @@
 {
-  "name": "storjd",
-  "version": "7.0.0-beta1",
-  "description": "official implementation of the storj protocol",
+  "name": "@orcproject/orc",
+  "version": "0.0.0",
+  "description": "distributed anonymous storage network",
   "main": "index.js",
   "bin": {
-    "storjd": "bin/storjd.js",
-    "storjutil": "bin/storjutil.js"
+    "orc": "bin/orc.js",
+    "orctool": "bin/orctool.js"
   },
   "directories": {
     "test": "test",
@@ -21,7 +21,7 @@
     "linter": "eslint ./index.js ./lib ./test",
     "generate-spec": "cat ./doc/protocol.md | pandoc -o ./doc/protocol.pdf && zathura ./doc/protocol.pdf",
     "generate-docs": "mkdir -p ./jsdoc && rm -r ./jsdoc && jsdoc index.js lib -r -R README.md -u ./doc -c .jsdoc.json --verbose -d ./jsdoc",
-    "publish-docs": "gh-pages -d jsdoc --repo git@github.com:Storj/storjd.git"
+    "publish-docs": "gh-pages -d jsdoc --repo git@github.com:orcproject/orc.git"
   },
   "keywords": [
     "storj",
@@ -33,7 +33,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/storj/storjd.git"
+    "url": "https://github.com/orcproject/orc.git"
   },
   "author": "Gordon Hall <gordonh@member.fsf.org>",
   "contributors": [
@@ -75,17 +75,30 @@
     "node": "6.x.x"
   },
   "dependencies": {
-    "async": "^2.1.4",
+    "async": "^2.4.1",
+    "boscar": "^1.0.0",
+    "bytes": "^2.5.0",
+    "commander": "^2.9.0",
     "concat-stream": "^1.6.0",
     "connect": "^3.6.1",
     "ip": "littleskunk/node-ip#b1e7ec0cbff9f7841b1584e50339a774363437c0",
     "jsen": "bugventure/jsen#9e57a9d653ff4ea47d364fc37da0f1659bfb8e89",
     "json-stable-stringify": "^1.0.1",
     "kad": "^2.3.0",
+    "kad-hibernate": "^1.0.0",
+    "kad-onion": "^1.2.0",
     "kad-quasar": "^2.0.2",
-    "kad-spartacus": "^2.1.0",
+    "kad-spartacus": "^2.2.0",
+    "kad-traverse": "^1.1.1",
+    "kfs": "^3.1.5",
+    "leveldown": "^1.7.1",
+    "levelup": "^1.3.8",
     "merge": "^1.2.0",
+    "mkdirp": "^0.5.1",
+    "ms": "^2.0.0",
     "mtree": "^1.0.0",
+    "pem": "^1.9.7",
+    "rc": "^1.2.1",
     "secp256k1": "^3.2.2",
     "semver": "^5.1.0"
   },
@@ -97,30 +110,11 @@
     "ink-docstrap": "bookchin/docstrap",
     "istanbul": "^0.4.5",
     "jsdoc": "^3.4.0",
-    "kfs": "^3.1.5",
-    "levelup": "^1.3.6",
     "memdown": "^1.2.4",
-    "mkdirp": "^0.5.1",
     "mocha": "^2.2.4",
     "node-mocks-http": "^1.6.1",
-    "pem": "^1.9.7",
     "proxyquire": "^1.7.3",
     "rimraf": "^2.6.1",
     "sinon": "^1.14.1"
-  },
-  "optionalDependencies": {
-    "boscar": "^1.0.0",
-    "bytes": "^2.5.0",
-    "commander": "^2.9.0",
-    "kad-hibernate": "^1.0.0",
-    "kad-onion": "^1.2.0",
-    "kad-traverse": "^1.1.1",
-    "kfs": "^3.1.5",
-    "leveldown": "^1.7.1",
-    "levelup": "^1.3.8",
-    "mkdirp": "^0.5.1",
-    "ms": "^2.0.0",
-    "pem": "^1.9.7",
-    "rc": "^1.2.1"
   }
 }

@@ -1,25 +1,21 @@
----
-
-Node Configuration & Setup
-==========================
-
-This guide will show you how to get started with running `storjd`! A Storj 
+This guide will show you how to get started with running `orc`! An Orc 
 node requires a configuration file to get up and running. The path to this 
-file is given to `storjd` when starting a node.
+file is given to `orc` when starting a node.
 
 ```
-storjd --config path/to/storjd.conf
+orc --config path/to/orc.config
 ```
 
 If a configuration file is not supplied, a minimal default configuration is 
 automatically created and used, which will generate a private extended key, 
 self-signed SSL certificate, and storage for shards, contracts, and directory 
 information. All of this data will be created and stored in 
-`$HOME/.config/storjd`, yielding a directory structure like this:
+`$HOME/.config/orc`, yielding a directory structure like this:
 
 ```
-+- ~/.config/storjd
++- ~/.config/orc
   + - x_private_key
+  + - onion_key
   + - config
   + - service_key.pem
   + - certificate.pem
@@ -40,21 +36,15 @@ Default Configuration
 
 ```ini
 ;
-; Storj Core Sample Configuration
+; Orc Sample Configuration
 ;
 
 ; Path to private extended key file to use for master identity.
 ; Generate one with:
 ; 
-;   storjutil generate-key --extended >> x_private_key
+;   orctool generate-key --extended >> x_private_key
 ;
-; If you are migrating from an older version of Storj Core before support for 
-; hierarchically deterministic keys was added, you can convert your old key
-; to the new format with:
-;
-;   storjutil generate-key --convert [hex_private_key] >> x_private_key
-;
-PrivateExtendedKeyPath = /home/bookchin/.config/storjd/x_private_key
+PrivateExtendedKeyPath = /home/bookchin/.config/orc/x_private_key
 
 ; The index for deriving this child node's identity. This allows you to run 
 ; multiple nodes with the same private extended key. If your private extended 
@@ -64,12 +54,12 @@ ChildDerivationIndex = 0
 
 ; Set the base directory (parent) for where the contracts.db folder will be 
 ; placed. The contracts.db holds storage contracts between you and other nodes.
-ContractStorageBaseDir = /home/bookchin/.config/storjd
+ContractStorageBaseDir = /home/bookchin/.config/orc
 
 ; Set the base directory (parent) for where the shards.kfs folder will be 
 ; placed. The shards.kfs stores other nodes data shards, so be sure you set 
 ; this to where you intend to store farmed shards.
-ShardStorageBaseDir = /home/bookchin/.config/storjd
+ShardStorageBaseDir = /home/bookchin/.config/orc
 
 ; Define the maximum size you wish to allocate for farming shards. This can be 
 ; increased later, but decreasing it will not delete existing data.
@@ -84,42 +74,29 @@ ShardStorageMaxOpenFiles = 50
 ; announcements you have made. If you are farming, set this value once for every 
 ; trusted renter public extended key from which you will accept claims or once 
 ; with a value of *
-AllowDirectStorageClaims[] = none
+AllowDirectStorageClaims[] = *
 
 ; Set the base directory (parent) for where the directory.db folder will be 
 ; placed. The directory.db holds key-value pairs for the distributed hash 
 ; table, which serve various purposes such as reputation data on other peers.
-DirectoryStorageBaseDir = /home/bookchin/.config/storjd
+DirectoryStorageBaseDir = /home/bookchin/.config/orc
 
 ; Paths to this node's SSL key and certificat. If you don't have one, you can 
 ; generate one with the following:
 ;
-;   storjutil generate-cert | csplit - 28
+;   orctool generate-cert | csplit - 28
 ;   mv xx00 service_key.pem
 ;   mv xx01 certificate.pem
 ;
-TransportServiceKeyPath = /home/bookchin/.config/storjd/service_key.pem
-TransportCertificatePath = /home/bookchin/.config/storjd/certificate.pem
-
-; Set the public hostname or IP address at which your node will reachable to 
-; others. If NatTraversalEnabled = 1, you may leave this as 127.0.0.1, but it
-; it reccommended to configure port forwarding on your router and use a 
-; dynamic DNS service or set your static IP address.
-PublicHostname = 127.0.0.1
+TransportServiceKeyPath = /home/bookchin/.config/orc/service_key.pem
+TransportCertificatePath = /home/bookchin/.config/orc/certificate.pem
 
 ; Set the public port number at which your node will be reachable to others. 
 ; This should be the port you forwarded.
-PublicPort = 4000
-
-; If set to 1, we will try to use UPnP and/or NAT-PMP to configure port 
-; forwarding for you. It is safe to leave set this to 1 even if you are 
-; already forwarded, since it will check if you are public before proceeding. 
-; If you have a dynamic IP address, it's good to enable this as we will also 
-; periodically check you public IP and update your PublicHostname.
-NatTraversalEnabled = 0
+PublicPort = 443
 
 ; Set the local port to bind the node service.
-ListenPort = 4000
+ListenPort = 4443
 
 ; Enables bandwidth metering and hibernation mode. When the property 
 ; BandwidthAccountingEnabled is 1, we will enter low-bandwidth mode if the we
@@ -136,12 +113,11 @@ VerboseLoggingEnabled = 1
 ; node from other applications. Be sure that ControlHostname is kept set to 
 ; a loopback address, unless you have taken other measures to prevent others 
 ; from controlling your node.
-ControlPort = 4001
+ControlPort = 4444
 ControlHostname = 127.0.0.1
 
 ; Add a map of network bootstrap nodes to this section to use for discovering 
 ; other peers. Default configuration should come with a list of known and 
-; trusted contacts. Formatted as "{node-id} = https://{hostname}:{port}".
-[NetworkBootstrapNodes]
-; c4b6d629fa19bfc50e2526ccc651960e428c191c = https://seed.bookch.in:8443
+; trusted contacts. Formatted as "https://{onion}:{port}".
+NetworkBootstrapNodes[] = https://orcjd7xgshpovm6i.onion:443
 ```

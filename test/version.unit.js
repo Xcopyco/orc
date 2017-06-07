@@ -12,7 +12,7 @@ describe('@module version', function() {
   });
 
   it('should return the postfixed network version', function() {
-    process.env.STORJ_NETWORK = 'test';
+    process.env.ORC_NETWORK = 'test';
     const v = proxyquire('../lib/version', {});
     expect(v.protocol.indexOf('-test')).to.not.equal(-1);
     process.env.STORJ_NETWORK = '';

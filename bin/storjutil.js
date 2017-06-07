@@ -4,15 +4,15 @@
 
 const pem = require('pem');
 const { utils: keyutils } = require('kad-spartacus');
-const storj = require('..');
+const orc = require('..');
 const options = require('./_config');
 const program = require('commander');
 
 
 program.version(`
-  storjutil 1.0.0
-  core      ${storj.version.software}
-  protocol  ${storj.version.protocol}
+  orctool   1.0.0
+  core      ${orc.version.software}
+  protocol  ${orc.version.protocol}
 `);
 
 program.description(`

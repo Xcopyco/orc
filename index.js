@@ -1,5 +1,5 @@
 /**
- * @module storj
+ * @module orc
  * @license AGPL-3.0
  */
 
@@ -10,7 +10,7 @@ const { join } = require('path');
 
 
 /**
- * Forks a child storjd process and returns the child process and a controller
+ * Forks a child orc process and returns the child process and a controller
  * client for sending commands to it
  * @function
  * @param {object|string} config - Configuration properties as object or path
@@ -26,7 +26,7 @@ module.exports = function(config = {}) {
   const controller = new module.exports.control.Client();
 
   let envs = {};
-  let args = [join(__dirname, './bin/storjd.js')];
+  let args = [join(__dirname, './bin/orc.js')];
   let trys = 10;
   let opts = { env: envs };
 
@@ -34,7 +34,7 @@ module.exports = function(config = {}) {
     args = args.concat(['--config', config]);
   } else {
     for (let prop in config) {
-      envs[`storjd_${prop}`] = config[prop];
+      envs[`orc_${prop}`] = config[prop];
     }
   }
 
@@ -83,13 +83,13 @@ module.exports.Offers = require('./lib/offers');
 /** {@link Contract} */
 module.exports.Contract = require('./lib/contract');
 
-/** {@link module:storjd/constants} */
+/** {@link module:orc/constants} */
 module.exports.constants = require('./lib/constants');
 
-/** {@link module:storjd/utils} */
+/** {@link module:orc/utils} */
 module.exports.utils = require('./lib/utils');
 
-/** {@link module:storjd/version} */
+/** {@link module:orc/version} */
 module.exports.version = require('./lib/version');
 
 /** @see https://github.com/bookchin/boscar */

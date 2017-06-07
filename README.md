@@ -1,23 +1,22 @@
-storjd
-======
+Orc
+===
 
-[![Build Status](https://img.shields.io/travis/Storj/storjd.svg?style=flat-square)](https://travis-ci.org/Storj/storjd)
-[![Coverage Status](https://img.shields.io/coveralls/Storj/storjd.svg?style=flat-square)](https://coveralls.io/r/Storj/storjd)
-[![NPM](https://img.shields.io/npm/v/storjd.svg?style=flat-square)](https://www.npmjs.com/package/storjd)
-[![License](https://img.shields.io/badge/license-AGPL3.0-blue.svg?style=flat-square)](https://raw.githubusercontent.com/Storj/storjd/master/LICENSE)
+[![Build Status](https://img.shields.io/travis/orcproject/orc.svg?style=flat-square)](https://travis-ci.org/orcproject/orc)
+[![Coverage Status](https://img.shields.io/coveralls/Storj/storjd.svg?style=flat-square)](https://coveralls.io/r/orcproject/orc)
+[![NPM](https://img.shields.io/npm/v/@orcproject/orc.svg?style=flat-square)](https://www.npmjs.com/package/@orcproject/orc)
+[![License](https://img.shields.io/badge/license-AGPL3.0-blue.svg?style=flat-square)](https://raw.githubusercontent.com/orcproject/orc/master/LICENSE)
 
-Complete implementation of the Storj Network Protocol Version 2. This package 
-supercedes [Storj Core (`storj-lib@6.x.x`)](https://github.com/Storj/core) 
-and may be used as a daemon or as a library to control a node on the Storj 
-Network. **Currently in BETA**.
+The **Onion Routed Cloud**. Orc is a distriubuted anonymous cloud storage 
+network owned and operated by _all of us_.
 
 Prerequisites
 -------------
 
 Make sure you have the following prerequisites installed:
 
+* Tor
 * Git
-* Node.js LTS (6.9.x)
+* Node.js LTS (6.10.x)
 * NPM
 * Python 2.7
 * GCC/G++/Make
@@ -84,11 +83,11 @@ Installation
 
 ### Daemon + Utilities CLI
 
-This package exposes two command line programs: `storjd` and `storjutil`. To 
+This package exposes two command line programs: `orc` and `orctool`. To 
 install these, use the `--global` flag.
 
 ```
-npm install storjd --global --production
+npm install -g @orcproject/orc
 ```
 
 ### Core Library
@@ -98,7 +97,7 @@ protocol. To use it in your project, from your project's root directory,
 install as a dependency.
 
 ```
-npm install storjd --save
+npm install @orcproject/orc --save
 ```
 
 Usage
@@ -111,8 +110,8 @@ from your program and connect to it over the control port. This package exposes
 a convenience method for doing this. 
 
 ```js
-const storjd = require('storjd');
-const { child, controller } = storjd(config);
+const orc = require('@orcproject/orc');
+const { child, controller } = orc(config);
 
 // The `config` argument can be either a string path to config file to use or 
 // a JSON dictionary of config properties. See configuration documentaion.
@@ -132,8 +131,8 @@ control protocol to implement it in the language of your choice. If using
 Node.js, you can use the client bundled in this package.
 
 ```js
-const storj = require('storjd');
-const controller = new storj.control.Client();
+const orc = require('@orcproject/orc');
+const controller = new orc.control.Client();
 
 controller.on('ready', () => {
   controller.invoke('ping', [contact], (err) => { /* handle result */ });
@@ -142,21 +141,21 @@ controller.on('ready', () => {
 controller.connect(port);
 ```
 
-If you wish to control your `storjd` node from another language, simply connect 
+If you wish to control your `orc` node from another language, simply connect 
 to the control port over a TCP socket and use the 
 [BOSCAR](https://github.com/bookchin/boscar) protocol to send RPC messages to 
-the node. The methods and argument signatures map directly to the `storjd.Node` 
+the node. The methods and argument signatures map directly to the `orc.Node` 
 API describe in the documentation. See *Resources* below.
 
 ### Direct Implementation
 
-Since `storjd` exposes all of the internals used to implement it, you can use 
-the same classes to directly implement your own Storj node within your project.
-Just import the `storjd` package and construct a node instance with options.
+Since `orc` exposes all of the internals used to implement it, you can use 
+the same classes to directly implement your own Orc node within your project.
+Just import the package and construct a node instance with options.
 
 ```js
-const storj = require('storjd');
-const node = new storj.Node(options);
+const orc = require('@orcproject/orc');
+const node = new orc.Node(options);
 
 node.listen(8443);
 node.join(['known_node_id', { /* contact data */ }]);
@@ -164,20 +163,21 @@ node.join(['known_node_id', { /* contact data */ }]);
 
 Consult the documentation for a complete reference of the API exposed from the 
 `Node` object. Further documentation on usage can be found by reviewing the 
-end-to-end test suite in `test/node.e2e.js`. Note that this library is a very 
-low level interface for the Storj protocol and is not intended for casual 
-integration with the Storj network.
+end-to-end test suite in `test/node.e2e.js`. Note that using this package as a 
+library provides a very low level interface for the Orc protocol and is not 
+intended for casual integration with the Orc network.
 
 Resources
 ---------
 
-* [Storj Documentation](https://storj.github.io/storjd/)
-* [Storj Protocol Specification](https://raw.githubusercontent.com/Storj/storjd/master/doc/protocol.md)
+* [Orc Documentation](https://orcproject.github.io/orc/)
+* [Orc Protocol Specification](https://raw.githubusercontent.com/orcproject/protocol/master/README.md)
 
 License
 -------
 
-Storj Core - Complete implementation of the Storj Network Protocol and daemon.  
+Orc - Distributed Anonymous Storage Network  
+Copyright (C) 2017  Gordon Hall  
 Copyright (C) 2016  Storj Labs, Inc
 
 This program is free software: you can redistribute it and/or modify
