@@ -91,7 +91,12 @@ DirectoryStorageBaseDir = /home/bookchin/.config/orc
 TransportServiceKeyPath = /home/bookchin/.config/orc/service_key.pem
 TransportCertificatePath = /home/bookchin/.config/orc/certificate.pem
 
-; Path to this node's RSA1024 Tor hidden service private key
+; Path to this node's RSA1024 Tor hidden service private key. If this path does 
+; not exist, it will be automatically generated for you. If you'd like to 
+; generate one yourself, you can use:
+;
+;   orctool generate-onion >> onion_key
+;
 OnionServicePrivateKeyPath = /home/bookchin/.config/orc/onion_key
 
 ; Set the public port number at which your node will be reachable to others. 
