@@ -2,6 +2,7 @@
 
 'use strict';
 
+const os = require('os');
 const url = require('url');
 const async = require('async');
 const program = require('commander');
@@ -112,7 +113,7 @@ const contact = {
   port: parseInt(config.PublicPort),
   xpub: parentkey.publicExtendedKey,
   index: parseInt(config.ChildDerivationIndex),
-  agent: `orc-${manifest.version}/core-${orc.version.software}`
+  agent: `orc-${manifest.version}/${os.platform()}`
 };
 
 // Initialize protocol implementation
@@ -126,6 +127,12 @@ const node = new orc.Node({
   claims: !!parseInt(config.AllowDirectStorageClaims),
   privateExtendedKey: xprivkey,
   keyDerivationIndex: parseInt(config.ChildDerivationIndex)
+});
+
+// Handle any fatal errors
+node.on('error', (err) => {
+  logger.error(err.message);
+  process.exit(1);
 });
 
 const rsa = fs.readFileSync(config.OnionServicePrivateKeyPath)
@@ -196,11 +203,14 @@ if (!!parseInt(config.VerboseLoggingEnabled)) {
 let retry = null;
 
 function join() {
-  logger.info(`joining network from ${seeds.length} bootstrap nodes`);
-  async.detectSeries(seeds, (seed, done) => {
+  logger.info(
+    `joining network from ${config.NetworkBootstrapNodes.length} seeds`
+  );
+  async.detectSeries(config.NetworkBootstrapNodes, (seed, done) => {
     node.identifyService(seed, (err, contact) => {
       if (err) {
         logger.error(`failed to identity seed ${seed}, trying next...`);
+        done(null, false);
       } else {
         node.join(contact, (err) => done(null, !err));
       }

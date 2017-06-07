@@ -1,9 +1,7 @@
----
+Orc Protocol Specification
+==========================
 
-Storj Protocol Specification
-============================
-
-### Version 2 (May 23, 2017)
+### Version 2.1 (June 7, 2017)
 
 Gordon Hall (gordonh@member.fsf.org)  
 Braydon Fuller (braydon@storj.io)  
@@ -14,7 +12,8 @@ Ryan Foran (ryan@storj.io)
 0    License
 -------------
 
-Copyright (C) 2017 Storj Labs, Inc.
+Copyright (C) 2017 Gordon Hall (Orc Protocol)  
+Copyright (C) 2017 Storj Labs, Inc. (Storj Protocol)
 
 Permission is granted to copy, distribute and/or modify this document
 under the terms of the GNU Free Documentation License, Version 1.3
@@ -25,13 +24,13 @@ A copy of the license is included in the "LICENSE" file.
 1    Introduction
 ------------------
 
-This specification documents the Storj network protocol in its entirety for 
+This specification documents the Orc network protocol in its entirety for 
 the purpose of enabling its implementation in other languages. Described here, 
 is the protocol **base** - the minimum specification for compatibility with 
-the Storj network. Additional optional extensions to this work are defined as 
-[Storj Improvement Proposals](https://github.com/storj/sips) (or "SIPs"), some 
+the Orc network. Additional optional extensions to this work are defined as 
+[Orc Improvement Proposals](https://github.com/orcprojects/imps) (or "IMPs"), some 
 of which have been folded into the base protocol since Version 1, such as SIP-4 
-and SIP-32.
+and SIP-32 (Storj Protocol).
 
 ### 1.1    Differences from Version 1
 
@@ -46,7 +45,7 @@ and SIP-32.
 2    Identities
 ----------------
 
-Every node (host computer speaking the Storj protocol) on the network possesses 
+Every node (host computer speaking the Orc protocol) on the network possesses 
 a unique cryptographic identity. This identity is used to derive a special 
 160 bit identifier for the purpose of organizaing the overlay structure and 
 routing messages _(3.1: Kademlia)_. In order for a node to join the network it 
@@ -131,14 +130,14 @@ network, however the properties above are **required**.
 3    Network Structure
 ----------------------
 
-Storj employs a **structured** network, meaning that nodes are organized and 
+Orc employs a **structured** network, meaning that nodes are organized and 
 route messages based on a deterministic metric. The network uses a 
 [Kademlia](http://www.scs.stanford.edu/~dm/home/papers/kpos.pdf) distributed 
 hash table as the basis for the network overlay. In addition to Kademlia, 
-Storj also employs other extensions to mitigate issues and attacks defined 
+Orc also employs other extensions to mitigate issues and attacks defined 
 by the work on [S/Kademlia](http://www.tm.uka.de/doc/SKademlia_2007.pdf). 
 
-In addition to the distributed hash table, Storj also implements a 
+In addition to the distributed hash table, Orc also implements a 
 publish-subscribe system, 
 [Quasar](https://www.microsoft.com/en-us/research/wp-content/uploads/2008/02/iptps08-quasar.pdf), 
 atop the Kademlia overlay to provide effective delivery of publications related 
@@ -146,7 +145,7 @@ to the solicitation of storage space _(6: Storage Contracts)_.
 
 ### 3.1    Kademlia
 
-Once a Storj node has completed generating its identity, it bootstraps its 
+Once an Orc node has completed generating its identity, it bootstraps its 
 routing table by following the Kademlia "join" procedure. This involves 
 querying a single known "seed" node for contact information about other nodes 
 that possess a Node ID that is close (XOR distance) to its own 
@@ -170,7 +169,7 @@ Filter 1 [...] - 3 NEAREST NEIGHBORS are subscribed
 Filter 2 [...] - NEIGHBORS' 3 NEAREST NEIGHBORS' are subscribed
 ```
 
-The Storj network expects these blooms filters to be constructed and modified 
+The Orc network expects these blooms filters to be constructed and modified 
 in a specific manner. Each filter's bitfield must be exactly 160 bits in size.
 Items are hashed with 
 [FNV](https://en.wikipedia.org/wiki/Fowler%E2%80%93Noll%E2%80%93Vo_hash_function) 
@@ -209,28 +208,36 @@ to receive, it must exchange this information with its 3 nearest neighbors
 _(4.7 SUBSCRIBE + 4.8 UPDATE)_. This allows publications to be properly 
 relayed to nodes who are most likely to be subscribed to the given topic.
 
-
-
 ### 3.3    Transport
 
-The Storj network operates entirely over HTTPS. TLS *must* be used - there is 
+The Orc network operates entirely over HTTPS. TLS *must* be used - there is 
 no cleartext supported. In general this means that certificates are self-signed 
 and you must accept them in order to communicate with others on the network. 
-Because of this, it is recommended that certificate pinning be used when 
-implementing the Storj protocol.
+In addition, Orc operates exclusively over [Tor](https://torproject.org) and 
+because of this, there is no need to perform certificate pinning for SSL since 
+all Orc nodes are Tor hidden services and authentication is performed by the 
+nature of Tor's routing.
 
-> It's important to note that while it may be possible for a man-in-the-middle 
-> to intercept RPC messages if certificate pinning is not used, it is not 
-> possible for this attacker to manipulate messages. Furthermore, data transfer 
-> is encrypted such that only the sender is capable of decrypting it. The most 
-> damage this type of attack could cause is targeted denial-of-service.
+Each Orc node exposes endpoints to other nodes; one for receiving RPC 
+messages _(4. Remote Procedure Calls)_, one for serving and accepting 
+raw data streams associated with held contracts _(5. Data Transfer Endpoints)_,
+and one for delivering identity metadata to requesters _(3.4 Root Endpoint)_.
 
-Each Storj node exposes 2 endpoints to other nodes; one for receiving RPC 
-messages _(4. Remote Procedure Calls)_ and the other for serving and accepting 
-raw data streams associated with held contracts _(5. Data Transfer Endpoints)_. 
 Requests sent to the RPC endpoint require a special HTTP header 
 `x-kad-message-id` to be included that matches the `id` parameter in the 
 associated RPC message _(4.1 Structure and Authentication)_.
+
+### 3.4 Root Endpoint
+
+Whenver an Orc node receives a GET request at the root path (`/`), it must 
+with it's contact metadata:
+
+```
+["705e93f855e60847fda4c48adff0dc1b1f7c40ef", { /* <contact> */ }]
+```
+
+This is to enable new Orc nodes who have yet to discover this information to 
+query seeds for it before bootstrapping their routing table.
 
 4    Remote Procedure Calls
 ---------------------------
@@ -580,7 +587,7 @@ request.
 6    Storage Contracts
 ----------------------
 
-Nodes on the Storj network form agreements with each other regarding the 
+Nodes on the Orc network form agreements with each other regarding the 
 storage of data by exchanging a "contract descriptor". These descriptors 
 are included in contract publications intended to solicit storage space 
 _(7 Renting Space)_ as well as in `RENEW` messages _(4.15 RENEW)_. Contracts 
@@ -623,7 +630,7 @@ signature must be encoded as a base64 string.
 
 ### 6.2    Topic Codes
 
-Storj defines a matrix of *criteria* and *descriptors* in the form of codes 
+Orc defines a matrix of *criteria* and *descriptors* in the form of codes 
 representing the degree of which the criteria must be met. The resulting topic 
 code is used as the key for cross-referencing neighborhood bloom filters to 
 determine how the publication should be routed. At the time of writing, there 
@@ -842,7 +849,7 @@ with a retrievability proof _(7 Retrievability Proofs)_.
 9    References
 ---------------
 
-* Storj Improvement Proposals (`https://github.com/storj/sips`)
+* Orc Improvement Proposals (`https://github.com/orcproject/imps`)
 * BIP32 (`https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki`)
 * BIP43 (`https://github.com/bitcoin/bips/blob/master/bip-0043.mediawiki`)
 * Kademlia (`http://www.scs.stanford.edu/~dm/home/papers/kpos.pdf`)
