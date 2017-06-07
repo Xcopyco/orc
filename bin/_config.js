@@ -37,7 +37,7 @@ module.exports = {
 
   // Network Bootstrapping
   NetworkBootstrapNodes: [
-    'orcjd7xgshpovm6i.onion:443'
+    'https://orcjd7xgshpovm6i.onion:443'
   ],
 
   // Bandwidth Metering

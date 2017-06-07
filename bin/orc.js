@@ -207,9 +207,10 @@ function join() {
     `joining network from ${config.NetworkBootstrapNodes.length} seeds`
   );
   async.detectSeries(config.NetworkBootstrapNodes, (seed, done) => {
+    logger.info(`requesting identity information from ${seed}`);
     node.identifyService(seed, (err, contact) => {
       if (err) {
-        logger.error(`failed to identity seed ${seed}, trying next...`);
+        logger.error(`failed to identify seed ${seed} (${err.message})`);
         done(null, false);
       } else {
         node.join(contact, (err) => done(null, !err));
@@ -231,7 +232,8 @@ function join() {
 // Bind to listening port and join the network
 node.listen(parseInt(config.ListenPort), () => {
   logger.info(`node listening on port ${config.ListenPort}`);
-  join();
+  logger.info('giving tor a moment to bootstrap...');
+  setTimeout(() => join(), 5000);
 });
 
 // Establish control server and wrap node instance
