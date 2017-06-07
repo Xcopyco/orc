@@ -57,6 +57,19 @@ program
   });
 
 program
+  .command('generate-onion')
+  .description('generate a new onion hidden service RSA1024 private key')
+  .action(function() {
+    pem.createPrivateKey(1024, (err, data) => {
+      if (err) {
+        console.error(`\n ${err.message}`);
+      } else {
+        console.info(data.key);
+      }
+    });
+  });
+
+program
   .command('list-config-options')
   .description('print all valid configuration option names')
   .action(function() {

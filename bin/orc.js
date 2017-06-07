@@ -65,9 +65,9 @@ if (!fs.existsSync(config.TransportServiceKeyPath)) {
 }
 
 // Generate self-signed ssl certificate if it does not exist
-if (!fs.existsSync(config.OnionServiceKeyPath)) {
+if (!fs.existsSync(config.OnionServicePrivateKeyPath)) {
   let key = orctool('generate-onion');
-  fs.writeFileSync(config.OnionServiceKeyPath, key);
+  fs.writeFileSync(config.OnionServicePrivateKeyPath, key);
 }
 
 // Initialize private extended key
@@ -115,15 +115,6 @@ const contact = {
   agent: `orc-${manifest.version}/core-${orc.version.software}`
 };
 
-// Initialize network seed contacts
-const seeds = config.NetworkBootstrapNodes.map((str) => {
-  let { protocol, hostname, port } = url.parse(str);
-
-  // TODO: Load identity string from GET /
-
-  return [identity, { hostname, protocol, port }];
-});
-
 // Initialize protocol implementation
 const node = new orc.Node({
   contracts,
@@ -137,9 +128,12 @@ const node = new orc.Node({
   keyDerivationIndex: parseInt(config.ChildDerivationIndex)
 });
 
+const rsa = fs.readFileSync(config.OnionServicePrivateKeyPath)
+              .toString().split('\n');
+
 // Establish onion hidden service
 node.plugin(onion({
-  rsaPrivateKey: fs.readFileSync(config.OnionServiceKeyPath).toString()
+  rsaPrivateKey: rsa.slice(1, rsa.length - 1).join('')
 }));
 
 // Intialize control server
@@ -203,8 +197,14 @@ let retry = null;
 
 function join() {
   logger.info(`joining network from ${seeds.length} bootstrap nodes`);
-  async.detectSeries(seeds, (contact, done) => {
-    node.join(contact, (err) => done(null, !err));
+  async.detectSeries(seeds, (seed, done) => {
+    node.identifyService(seed, (err, contact) => {
+      if (err) {
+        logger.error(`failed to identity seed ${seed}, trying next...`);
+      } else {
+        node.join(contact, (err) => done(null, !err));
+      }
+    });
   }, (err, result) => {
     if (!result) {
       logger.error('failed to join network, will retry in 1 minute');
