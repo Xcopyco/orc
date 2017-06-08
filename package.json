@@ -75,6 +75,7 @@
     "node": "6.x.x"
   },
   "dependencies": {
+    "@ronomon/reed-solomon": "^4.0.1",
     "async": "^2.4.1",
     "boscar": "^1.0.0",
     "bytes": "^2.5.0",
