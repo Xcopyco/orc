@@ -41,7 +41,7 @@ module.exports = function(numNodes, callback) {
       protocol: 'https:'
     };
     const shards = new orc.Shards(shardsPath, {
-      maxStorageAllocation: 1024 * 1024 * 1024
+      maxSpaceAllocated: 1024 * 1024 * 1024
     });
 
     pem.createCertificate({ days: 1, selfSigned: true }, function(err, keys) {

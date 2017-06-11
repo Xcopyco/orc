@@ -14,7 +14,6 @@ const traverse = require('kad-traverse');
 const spartacus = require('kad-spartacus');
 const onion = require('kad-onion');
 const ms = require('ms');
-const kfs = require('kfs');
 const bunyan = require('bunyan');
 const levelup = require('levelup');
 const mkdirp = require('mkdirp');
@@ -82,12 +81,14 @@ const contracts = levelup(
   { valueEncoding: 'json' }
 );
 
+// Create the shards directory if it does not exist
+if (!fs.existsSync(path.join(config.ShardStorageBaseDir, 'shards'))) {
+  mkdirp.sync(path.join(config.ShardStorageBaseDir, 'shards'));
+}
+
 // Initialize the shard storage database
-const shards = kfs(path.join(config.ShardStorageBaseDir, 'shards'), {
-  sBucketOpts: {
-    maxOpenFiles: parseInt(config.ShardStorageMaxOpenFiles)
-  },
-  maxTableSize: bytes.parse(config.ShardStorageMaxAllocation)
+const shards = new orc.Shards(path.join(config.ShardStorageBaseDir, 'shards'), {
+  maxSpaceAllocated: bytes.parse(config.ShardStorageMaxAllocation)
 });
 
 // Initialize the directory storage database
