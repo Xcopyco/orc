@@ -1,5 +1,6 @@
 'use strict';
 
+const { randomBytes } = require('crypto');
 const ini = require('ini');
 const { existsSync, writeFileSync } = require('fs');
 const mkdirp = require('mkdirp');
@@ -37,7 +38,10 @@ module.exports = {
 
   // Network Bootstrapping
   NetworkBootstrapNodes: [
-    'https://orcjd7xgshpovm6i.onion:443'
+    'https://orcjd7xgshpovm6i.onion:443',
+    'https://orcjfg52ty6ljv54.onion:443',
+    'https://orce4nqoa6muz3gt.onion:443',
+    'https://orcwfkilxjxo63mr.onion:443'
   ],
 
   // Bandwidth Metering
@@ -51,7 +55,17 @@ module.exports = {
   ControlHostname: '127.0.0.1',
 
   // Onion Service
-  OnionServicePrivateKeyPath: join(datadir, 'onion_key')
+  OnionServicePrivateKeyPath: join(datadir, 'onion_key'),
+
+  // Local Bridge
+  BridgeHostname: '127.0.0.1',
+  BridgePort: '4445',
+  BridgeAuthenticationEnabled: '0',
+  BridgeAuthenticationUser: 'orc',
+  BridgeAuthenticationPassword: randomBytes(16).toString('hex'),
+
+  // Node Profiles
+  ProfilesEnabled: ['renter', 'farmer', 'directory']
 
 };
 

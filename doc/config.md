@@ -128,4 +128,28 @@ ControlHostname = 127.0.0.1
 ; other peers. Default configuration should come with a list of known and 
 ; trusted contacts. Formatted as "https://{onion}:{port}".
 NetworkBootstrapNodes[] = https://orcjd7xgshpovm6i.onion:443
+NetworkBootstrapNodes[] = https://orcjfg52ty6ljv54.onion:443
+NetworkBootstrapNodes[] = https://orce4nqoa6muz3gt.onion:443
+NetworkBootstrapNodes[] = https://orcwfkilxjxo63mr.onion:443
+
+; When enabled via "renter" profile, bind a local bridge server that allows for
+; GET and POST HTTP requests for uploading and downloading files from the 
+; network. The bridge will handle encryption and erasure coding for you.
+; Optionally, protect the local bridge access using HTTP Basic Authentication
+; credentials defined here.
+BridgeHostname = 127.0.0.1
+BridgePort = 4445
+BridgeAuthenticationEnabled = 0
+BridgeAuthenticationUser = orc
+BridgeAuthenticationPassword = 1b5d3daa16b3343560bcf0377547b1c0
+
+; Pre-scripted profiles to enable after bootstrapping. Renter profiles listen 
+; for capacity announcements and build a cache while exposing a bridge server 
+; for uploading and downloading data. Farmer profiles publish capacity 
+; announcements and listen for contracts to store data. Directory profiles 
+; listen for a number of events but do not act of them, instead providing a
+; cache of network statistics.
+ProfilesEnabled[] = renter
+ProfilesEnabled[] = farmer
+ProfilesEnabled[] = directory
 ```
