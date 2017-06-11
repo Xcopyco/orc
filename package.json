@@ -36,40 +36,7 @@
     "url": "https://github.com/orcproject/orc.git"
   },
   "author": "Gordon Hall <gordonh@member.fsf.org>",
-  "contributors": [
-    {
-      "name": "littleskunk",
-      "url": "https://github.com/littleskunk"
-    },
-    {
-      "name": "Ryan Foran",
-      "url": "https://github.com/mrfancymonocle"
-    },
-    {
-      "name": "Philip Hutchins",
-      "url": "https://github.com/phutchins"
-    },
-    {
-      "name": "Allen Haim",
-      "url": "https://github.com/misterfish"
-    },
-    {
-      "name": "Alex Leitner",
-      "url": "https://github.com/aleitner"
-    },
-    {
-      "name": "Chris Pollard",
-      "url": "https://github.com/cpollard1001"
-    },
-    {
-      "name": "dxhome",
-      "url": "https://github.com/dxhome"
-    },
-    {
-      "name": "Colm Seale",
-      "url": "https://github.com/cseale"
-    }
-  ],
+  "contributors": [],
   "license": "AGPL-3.0",
   "engines": {
     "node": "6.x.x"
@@ -78,7 +45,7 @@
     "@ronomon/reed-solomon": "^4.0.1",
     "@sindresorhus/df": "^2.1.0",
     "async": "^2.4.1",
-    "boscar": "^1.1.0",
+    "boscar": "^1.1.1",
     "bytes": "^2.5.0",
     "commander": "^2.9.0",
     "concat-stream": "^1.6.0",
