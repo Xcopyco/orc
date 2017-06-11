@@ -80,6 +80,9 @@ module.exports.Proof = require('./lib/proof');
 /** {@link Offers} */
 module.exports.Offers = require('./lib/offers');
 
+/** {@link Shards} */
+module.exports.Shards = require('./lib/shards');
+
 /** {@link Contract} */
 module.exports.Contract = require('./lib/contract');
 

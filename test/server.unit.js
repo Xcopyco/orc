@@ -173,9 +173,9 @@ describe('@class Server', function() {
       const shards = {
         createWriteStream: function(key, callback) {
           let ws = new stream.Writable({ write: (d, e, cb) => cb() });
-          ws.destroy = sandbox.stub().callsArg(0);
           callback(null, ws);
-        }
+        },
+        unlink: sandbox.stub().callsArg(1)
       };
       const server = new Server({ contracts, identity, shards });
       const [req, res] = createMocks({
@@ -206,9 +206,9 @@ describe('@class Server', function() {
       const shards = {
         createWriteStream: function(key, callback) {
           let ws = new stream.Writable({ write: (d, e, cb) => cb() });
-          ws.destroy = sandbox.stub().callsArg(0);
           callback(null, ws);
-        }
+        },
+        unlink: sandbox.stub().callsArg(1)
       };
       const server = new Server({ contracts, identity, shards });
       const [req, res] = createMocks({

@@ -5,11 +5,11 @@ const { randomBytes } = require('crypto');
 const async = require('async');
 const pem = require('pem');
 const path = require('path');
-const kfs = require('kfs');
 const bunyan = require('bunyan');
 const levelup = require('levelup');
 const memdown = require('memdown');
-const storj = require('../..');
+const orc = require('../..');
+const mkdirp = require('mkdirp');
 
 let startPort = 45000;
 
@@ -19,16 +19,19 @@ module.exports = function(numNodes, callback) {
   const nodes = [];
 
   function createNode(callback) {
-    const kfsPath = path.join(
+    const shardsPath = path.join(
       tmpdir(),
-      `storj-lib.integration-${randomBytes(6).toString('hex')}`
+      `orc.integration-${randomBytes(6).toString('hex')}`
     );
+
+    mkdirp.sync(shardsPath);
+
     const logger = bunyan.createLogger({
       levels: ['fatal'],
       name: 'node-kademlia'
     });
     const storage = levelup('node-kademlia', { db: memdown });
-    const contracts = levelup('node-storj', {
+    const contracts = levelup('node-orc', {
       db: memdown,
       valueEncoding: 'json'
     });
@@ -37,15 +40,17 @@ module.exports = function(numNodes, callback) {
       port: startPort++,
       protocol: 'https:'
     };
-    const shards = kfs(kfsPath, { sBucketOpts: { maxOpenFiles: 50 } });
+    const shards = new orc.Shards(shardsPath, {
+      maxStorageAllocation: 1024 * 1024 * 1024
+    });
 
     pem.createCertificate({ days: 1, selfSigned: true }, function(err, keys) {
-      const transport = new storj.Transport({
+      const transport = new orc.Transport({
         key: keys.serviceKey,
         cert: keys.certificate
       });
 
-      callback(new storj.Node({
+      callback(new orc.Node({
         contact,
         contracts,
         storage,

@@ -2,11 +2,11 @@ Orc
 ===
 
 [![Build Status](https://img.shields.io/travis/orcproject/orc.svg?style=flat-square)](https://travis-ci.org/orcproject/orc)
-[![Coverage Status](https://img.shields.io/coveralls/Storj/storjd.svg?style=flat-square)](https://coveralls.io/r/orcproject/orc)
+[![Coverage Status](https://img.shields.io/coveralls/orcproject/orc.svg?style=flat-square)](https://coveralls.io/r/orcproject/orc)
 [![NPM](https://img.shields.io/npm/v/@orcproject/orc.svg?style=flat-square)](https://www.npmjs.com/package/@orcproject/orc)
 [![License](https://img.shields.io/badge/license-AGPL3.0-blue.svg?style=flat-square)](https://raw.githubusercontent.com/orcproject/orc/master/LICENSE)
 
-The **Onion Routed Cloud**. Orc is a distriubuted anonymous cloud storage 
+The **Onion Routed Cloud**. Orc is a distributed anonymous cloud storage 
 network owned and operated by _all of us_.
 
 Prerequisites
@@ -36,17 +36,6 @@ install Node.js (which comes with NPM):
 nvm install --lts
 ```
 
-#### Windows
-
-Download [Node.js LTS](https://nodejs.org/en/download/) for Windows, launch the
-installer and follow the setup instructions. Restart your PC, then test it from
-the command prompt:
-
-```
-node --version
-npm --version
-```
-
 ### Build Dependencies
 
 #### GNU+Linux
@@ -70,12 +59,6 @@ You might also find yourself lacking a C++11 compiler -
 
 ```
 xcode-select --install
-```
-
-#### Windows
-
-```
-npm install --global windows-build-tools
 ```
 
 Installation
