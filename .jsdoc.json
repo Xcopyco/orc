@@ -3,12 +3,12 @@
     "template": "node_modules/ink-docstrap/template"
   },
   "templates": {
-    "systemName": "Storj Core",
-    "copyright":  "Copyright 2016 Storj Labs",
+    "systemName": "ORC",
+    "copyright":  "Copyright 2016 Gordon Hall",
     "includeDate": false,
     "navType": "vertical",
-    "logoFile": "img/logo.svg",
-    "theme": "storj",
+    "logoFile": "",
+    "theme": "cyborg",
     "linenums": false,
     "collapseSymbols": false,
     "inverseNav": false,

@@ -136,11 +136,12 @@ node.on('error', (err) => {
 });
 
 const rsa = fs.readFileSync(config.OnionServicePrivateKeyPath)
-              .toString().split('\n');
+              .toString().split('\n').filter((l) => l && l[0] !== '-')
+              .join('');
 
 // Establish onion hidden service
 node.plugin(onion({
-  rsaPrivateKey: rsa.slice(1, rsa.length - 1).join('')
+  rsaPrivateKey: rsa
 }));
 
 // Intialize control server

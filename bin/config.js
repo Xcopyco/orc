@@ -20,7 +20,6 @@ module.exports = {
   // Shard Database
   ShardStorageBaseDir: datadir,
   ShardStorageMaxAllocation: '0GB',
-  ShardStorageMaxOpenFiles: '50',
 
   // Trusted Renter Nodes
   AllowDirectStorageClaims: ['*'],

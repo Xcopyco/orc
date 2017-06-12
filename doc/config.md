@@ -65,11 +65,6 @@ ShardStorageBaseDir = /home/bookchin/.config/orc
 ; increased later, but decreasing it will not delete existing data.
 ShardStorageMaxAllocation = 0GB
 
-; Maximum number of open file descriptors per shard bucket in shards.kfs. It's 
-; best to leave it at the default here (or not define it at all) unless you 
-; know what you are doing.
-ShardStorageMaxOpenFiles = 50
-
 ; Enables renter nodes to directly claim storage capacity based on any capacity 
 ; announcements you have made. If you are farming, set this value once for every 
 ; trusted renter public extended key from which you will accept claims or once 
