@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width">
+	<title>ORC Source: lib/contract.js</title>
+
+	<!--[if lt IE 9]>
+	<script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+	<![endif]-->
+
+	<script src="scripts/highlight.min.js"></script>
+
+	<link type="text/css" rel="stylesheet" href="styles/site.cyborg.css">
+
+</head>
+
+<body>
+
+<div class="navbar navbar-default navbar-fixed-top ">
+<div class="container">
+	<div class="navbar-header">
+		<a class="navbar-brand" style="background-image:url()"  href="index.html">ORC</a>
+		<button class="navbar-toggle" type="button" data-toggle="collapse" data-target="#topNavigation">
+			<span class="icon-bar"></span>
+			<span class="icon-bar"></span>
+			<span class="icon-bar"></span>
+        </button>
+	</div>
+	<div class="navbar-collapse collapse" id="topNavigation">
+		<ul class="nav navbar-nav">
+			
+			<li class="dropdown">
+				<a href="modules.list.html" class="dropdown-toggle" data-toggle="dropdown">Modules<b class="caret"></b></a>
+				<ul class="dropdown-menu ">
+					<li><a href="module-orc.html">orc</a></li><li><a href="module-orc_constants.html">orc/constants</a></li><li><a href="module-orc_utils.html">orc/utils</a></li><li><a href="module-orc_version.html">orc/version</a></li>
+				</ul>
+			</li>
+			
+			<li class="dropdown">
+				<a href="classes.list.html" class="dropdown-toggle" data-toggle="dropdown">Classes<b class="caret"></b></a>
+				<ul class="dropdown-menu ">
+					<li><a href="Audit.html">Audit</a></li><li><a href="Contract.html">Contract</a></li><li><a href="Node.html">Node</a></li><li><a href="Offers.html">Offers</a></li><li><a href="Proof.html">Proof</a></li><li><a href="Rules.html">Rules</a></li><li><a href="Server.html">Server</a></li><li><a href="Shards.html">Shards</a></li><li><a href="Transport.html">Transport</a></li>
+				</ul>
+			</li>
+			
+			<li class="dropdown">
+				<a href="events.list.html" class="dropdown-toggle" data-toggle="dropdown">Events<b class="caret"></b></a>
+				<ul class="dropdown-menu ">
+					<li><a href="Offers.html#event:data">Offers#event:data</a></li><li><a href="Offers.html#event:end">Offers#event:end</a></li><li><a href="Offers.html#event:error">Offers#event:error</a></li><li><a href="Server.html#event:error">Server#event:error</a></li><li><a href="Server.html#event:shardDownloaded">Server#event:shardDownloaded</a></li><li><a href="Server.html#event:shardUploaded">Server#event:shardUploaded</a></li><li><a href="Transport.html#event:download">Transport#event:download</a></li><li><a href="Transport.html#event:upload">Transport#event:upload</a></li>
+				</ul>
+			</li>
+			
+			<li class="dropdown">
+				<a href="tutorials.list.html" class="dropdown-toggle" data-toggle="dropdown">Tutorials<b class="caret"></b></a>
+				<ul class="dropdown-menu ">
+					<li><a href="tutorial-config.html">Node Configuration & Setup</a></li><li><a href="tutorial-protocol.html">Protocol Specification</a></li>
+				</ul>
+			</li>
+			
+		</ul>
+		<div class="col-sm-3 col-md-4">
+            <form class="navbar-form" role="search">
+                <div class="input-group">
+                    <input type="text" class="form-control" placeholder="Search" name="q" id="search-input">
+                    <div class="input-group-btn">
+                        <button class="btn btn-primary" id="search-submit"><i class="glyphicon glyphicon-search"></i></button>
+                    </div>
+                </div>
+            </form>
+        </div>
+	</div>
+
+</div>
+</div>
+
+
+<div class="container" id="toc-content">
+<div class="row">
+
+	
+	<div class="col-md-12">
+	
+		<div id="main">
+			
+
+		<h1 class="page-title">Source: lib/contract.js</h1>
+    
+<section>
+    <article>
+        <pre
+            class="sunlight-highlight-javascript ">'use strict';
+
+const ms = require('ms');
+const merge = require('merge');
+const JSONSchema = require('jsen');
+const stringify = require('json-stable-stringify');
+const constants = require('./constants');
+const utils = require('./utils');
+const secp256k1 = require('secp256k1');
+const { utils: keyutils } = require('kad-spartacus');
+
+
+/**
+ * Represents a storage contract between a renter and a farmer
+ */
+class Contract {
+
+  /**
+   * @constructor
+   * @param {object} contract
+   * @param {string} contract.type - Unique identifier for the contract
+   * @param {string} [contract.renter_hd_key] - Node extended public key in base58
+   * @param {number} [contract.renter_hd_index] - Derivation index for signature
+   * @param {string} contract.renter_id - Node ID of the renter
+   * @param {string} contract.renter_signature - Renter's cryptographic signature
+   * @param {string} [contract.farmer_hd_key] - Node extended public key in base58
+   * @param {number} [contract.farmer_hd_index] - Derivation index for signature
+   * @param {string} contract.farmer_id - Node ID of the farmer
+   * @param {string} contract.farmer_signature - Farmer's cryptographic signature
+   * @param {number} contract.data_size - Number of bytes to store
+   * @param {string} contract.data_hash - RIPEMD-160 SHA-256 hash of the data
+   * @param {number} contract.store_begin - UNIX timestamp to start contract
+   * @param {number} contract.store_end - UNIX timestamp to end the contract
+   * @param {number} contract.audit_count - Number of audits renter will perform
+   * @param {string[]} contract.audit_leaves - Merkle leaves for audit tree
+   * @param {number} contract.payment_storage_price - Total price for storage
+   * @param {number} contract.payment_download_price - Price per download
+   * @param {string} contract.payment_destination - Zcash address to send funds
+   * @param {object} criteria
+   * @param {number} criteria.size - Criteria degree OPCODE
+   * @param {number} criteria.duration - Criteria degree OPCODE
+   * @param {number} criteria.availability - Criteria degree OPCODE
+   * @param {number} criteria.speed - Criteria degree OPCODE
+   */
+  constructor(contract, criteria) {
+    this._properties = merge(Contract.DEFAULTS, contract);
+    this._criteria = this._inferCriteria(criteria);
+    this._clean();
+  }
+
+  /**
+   * Defines the JSON Schema of a {@link Contract}
+   * @static
+   */
+  static get schema() {
+    return {
+      type: 'object',
+      properties: {
+        version: {
+          type: ['integer'],
+          minimum: 0
+        },
+        renter_hd_key: {
+          type: ['string', 'boolean'],
+          pattern: '^[1-9a-km-zA-HJ-NP-Z]{1,111}$'
+        },
+        renter_hd_index: {
+          type: ['integer', 'boolean'],
+          minimum: 0,
+          maximum: 2147483647
+        },
+        renter_id: {
+          type: ['string', 'null'],
+          pattern: '[A-Fa-f0-9]{40}$'
+        },
+        renter_signature: {
+          type: ['string', 'null']
+        },
+        farmer_hd_key: {
+          type: ['string', 'boolean'],
+          pattern: '^[1-9a-km-zA-HJ-NP-Z]{1,111}$'
+        },
+        farmer_hd_index: {
+          type: ['integer', 'boolean'],
+          minimum: 0,
+          maximum: 2147483647
+        },
+        farmer_id: {
+          type: ['string', 'null'],
+          pattern: '[A-Fa-f0-9]{40}$'
+        },
+        farmer_signature: {
+          type: ['string', 'null']
+        },
+        data_size: {
+          type: ['integer', 'null'],
+          minimum: 0
+        },
+        data_hash: {
+          type: ['string', 'null'],
+          pattern: '^[0-9a-f]{40}$'
+        },
+        store_begin: {
+          type: ['integer', 'null'],
+          minimum: 0
+        },
+        store_end: {
+          type: ['integer', 'null'],
+          minimum: 0
+        },
+        audit_count: {
+          type: ['integer', 'null'],
+          minimum: 0
+        },
+        audit_leaves: {
+          type: 'array',
+          items: {
+            type: 'string',
+            pattern: '[A-Fa-f0-9]$'
+          }
+        },
+        payment_storage_price: {
+          type: ['integer', 'null']
+        },
+        payment_download_price: {
+          type: ['integer', 'null']
+        },
+        payment_destination: {
+          type: ['string', 'null']
+        }
+      }
+    };
+  }
+
+  /**
+   * Validation function against the schema
+   * @static
+   */
+  static get validator() {
+    return JSONSchema(Contract.schema);
+  }
+
+  /**
+   * Defines some default properties of a {@link Contract}
+   * @static
+   */
+  static get DEFAULTS() {
+    return {
+      version: 1,
+      renter_hd_key: false,
+      renter_hd_index: false,
+      renter_id: null,
+      renter_signature: null,
+      farmer_id: null,
+      farmer_signature: null,
+      data_size: 1234,
+      data_hash: null,
+      store_begin: 2000000000,
+      store_end: 3000000000,
+      audit_count: 10,
+      audit_leaves: [],
+      payment_storage_price: 0,
+      payment_download_price: 0,
+      payment_destination: null
+    };
+  }
+
+  /**
+   * Defines some default criteria of a {@link Contract}
+   * @static
+   */
+  static get CRITERIA() {
+    return {
+      size: constants.OPCODE_DEG_MED,
+      duration: constants.OPCODE_DEG_MED,
+      availability: constants.OPCODE_DEG_MED,
+      speed: constants.OPCODE_DEG_MED
+    };
+  }
+
+  /**
+   * Defines the criteria matrix for a {@link Contract}
+   * @static
+   */
+  static get MATRIX() {
+    return {
+      size: function(size) {
+        if (size > 0 &amp;&amp; size &lt;= (32 * 1024 * 1024)) {
+          return constants.OPCODE_DEG_LOW;
+        }
+
+        if (size > (32 * 1024 * 1024) &amp;&amp; size &lt;= (512 * 1024 * 1024)) {
+          return constants.OPCODE_DEG_MED;
+        }
+
+        if (size > (512 * 1024 * 1024) &amp;&amp; size &lt;= (4096 * 1024 * 1024)) {
+          return constants.OPCODE_DEG_HIGH;
+        }
+
+        return constants.OPCODE_DEG_HIGH;
+      },
+      duration: function(duration) {
+        if (duration > 0 &amp;&amp; duration &lt;= ms('30d')) {
+          return constants.OPCODE_DEG_LOW;
+        }
+
+        if (duration > ms('30d') &amp;&amp; duration &lt;= ms('90d')) {
+          return constants.OPCODE_DEG_MED;
+        }
+
+        if (duration > ms('90d') &amp;&amp; duration &lt;= ms('320d')) {
+          return constants.OPCODE_DEG_HIGH;
+        }
+
+        return constants.OPCODE_DEG_HIGH;
+      },
+      availability: function(availability) {
+        if (availability >= 0.5 &amp;&amp; availability &lt;= 0.7) {
+          return constants.OPCODE_DEG_LOW;
+        }
+
+        if (availability > 0.7 &amp;&amp; availability &lt;= 0.9) {
+          return constants.OPCODE_DEG_MED;
+        }
+
+        if (availability > 0.9 &amp;&amp; availability &lt;= 1) {
+          return constants.OPCODE_DEG_HIGH;
+        }
+
+        return constants.OPCODE_DEG_HIGH;
+      },
+      speed: function(speed) {
+        if (speed > 0 &amp;&amp; speed &lt;= 6) {
+          return constants.OPCODE_DEG_LOW;
+        }
+
+        if (speed > 6 &amp;&amp; speed &lt;= 12) {
+          return constants.OPCODE_DEG_MED;
+        }
+
+        if (speed > 12 &amp;&amp; speed &lt;= 32) {
+          return constants.OPCODE_DEG_HIGH;
+        }
+
+        return constants.OPCODE_DEG_HIGH;
+      }
+    };
+  }
+
+  /**
+   * Removes all properties not in the schema from contract
+   * @private
+   * @param {object} criteria - Criteria degree opcodes
+   * @returns {object}
+   */
+  _inferCriteria(criteria) {
+    let opcodes = Contract.CRITERIA;
+    opcodes.size = Contract.MATRIX.size(this.get('data_size'));
+    opcodes.duration = Contract.MATRIX.duration(
+      this.get('store_end') - this.get('store_begin')
+    );
+    return merge(opcodes, criteria);
+  }
+
+  /**
+   * Removes all properties not in the schema from contract
+   * @private
+   * @returns {Contract}
+   */
+  _clean() {
+    const keys = Object.keys(Contract.schema.properties);
+
+    for (let field in this._properties) {
+      if (!keys.includes(field)) {
+        delete this._properties[field];
+      }
+    }
+
+    return this;
+  }
+
+  /**
+   * Validates the contract specification
+   * @private
+   * @returns {boolean} validity
+   */
+  isValid() {
+    return Contract.validator(this._properties);
+  }
+
+  /**
+   * Checks if the contract is complete
+   * @returns {boolean} completed
+   */
+  isComplete() {
+    for (let prop in this._properties) {
+      if (this._properties[prop] === null) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  /**
+   * Returns the string representation of the contract, minus the signature
+   * fields, sorted alphanumerically for signing and verifying
+   * @returns {string}
+   */
+  getSigningData() {
+    const sorted = this.toObject();
+
+    delete sorted.renter_signature;
+    delete sorted.farmer_signature;
+
+    return stringify(sorted);
+  }
+
+  /**
+   * Signs the contract as the given actor
+   * @param {string} actor - One of 'farmer' or 'renter'
+   * @param {buffer} secret - ECDSA private key
+   * @returns {string} signature
+   */
+  sign(actor, secret) {
+    return this.set(actor + '_signature',
+                    this.signExternal(secret).toString('base64'));
+  }
+
+  /**
+   * Verify the contract signature for the given actor
+   * @param {string} actor - One of 'farmer' or 'renter'
+   * @returns {boolean}
+   */
+  verify(actor) {
+    const compactSig = Buffer.from(this.get(`${actor}_signature`), 'base64');
+    const recovery = compactSig[0];
+    const signature = compactSig.slice(1);
+    const message = utils.sha256(Buffer.from(this.getSigningData()));
+    const pubkey = secp256k1.recover(message, signature, recovery, true);
+    const pubkeyhash = this.get(`${actor}_id`);
+
+    return this.verifyExternal(signature, pubkey) &amp;&amp;
+      keyutils.toPublicKeyHash(pubkey).toString('hex') === pubkeyhash;
+  }
+
+  /**
+   * Signs the contract with the proved key and returns the signature
+   * @param {buffer} secret - ECDSA private key
+   * @returns {buffer}
+   */
+  signExternal(secret) {
+    const { signature, recovery } = secp256k1.sign(
+      utils.sha256(Buffer.from(this.getSigningData())),
+      secret
+    );
+
+    return Buffer.concat([Buffer.from([recovery]), signature]);
+  }
+
+  /**
+   * Verify the provided signature for the contract
+   * @param {buffer} signature - The contract signature to verify
+   * @param {buffer} pubkey - ECDSA public key
+   * @returns {boolean}
+   */
+  verifyExternal(signature, pubkey) {
+    return secp256k1.verify(
+      utils.sha256(Buffer.from(this.getSigningData())),
+      signature,
+      pubkey
+    );
+  }
+
+  /**
+   * Applies the provided fields to the contract and validates it
+   * @param {object} fields - Contract properties to update
+   * @returns {Contract}
+   */
+  update(fields) {
+    for (let prop in fields) {
+      this.set(prop, fields[prop]);
+    }
+
+    return this;
+  }
+
+  /**
+   * Returns the value for the given contract property
+   * @param {string} field - Contract property to get
+   * @returns {string|number|null} value
+   */
+  get(field) {
+    return this._properties[field];
+  }
+
+  /**
+   * Sets the contract property to the given value
+   * @param {string} field - Contract property to set
+   * @param {string|number} value - Value to set for field
+   * @returns {string|number|null}
+   */
+  set(field, value) {
+    this._properties[field] = value;
+    this._clean();
+    return this._properties[field];
+  }
+
+  /**
+   * Calculates the SHA-256 hash of the serialized contract
+   * @returns {buffer}
+   */
+  getHash() {
+    return utils.sha256(this.toBuffer());
+  }
+
+  /**
+   * Return OPCODE byte sequence for contract publication topic
+   * @returns {buffer}
+   */
+  getTopicBuffer() {
+    return Contract.createTopic(this._criteria);
+  }
+
+  /**
+   * Return OPCODE byte sequence for contract publication topic as hex string
+   * @returns {string}
+   */
+  getTopicString() {
+    return this.getTopicBuffer().toString('hex');
+  }
+
+  /**
+   * Converts the contract to a plain object
+   * @returns {object}
+   */
+  toObject() {
+    return JSON.parse(this.toJSON());
+  }
+
+  /**
+   * Converts the contract to JSON string
+   * @returns {string}
+   */
+  toJSON() {
+    return stringify(this._properties);
+  }
+
+  /**
+   * Converts the contract to Buffer
+   * @returns {buffer}
+   */
+  toBuffer() {
+    return new Buffer(this.toJSON(), 'utf8');
+  }
+
+  /**
+   * Creates a contract from a plain object
+   * @static
+   * @param {object} object - Dictionary of contract data
+   * @returns {Contract}
+   */
+  static fromObject(object) {
+    return new Contract(object);
+  }
+
+  /**
+   * Creates a contract from a JSON string
+   * @param {string} json - JSON encoded contract
+   * @returns {Contract}
+   */
+  static fromJSON(json) {
+    return new Contract(JSON.parse(json));
+  }
+
+  /**
+   * Creates a contract from a Buffer
+   * @param {buffer} buffer - Raw binary blob of contract data
+   * @returns {Contract}
+   */
+  static fromBuffer(buffer) {
+    return new Contract(JSON.parse(buffer.toString('utf8')));
+  }
+
+  /**
+   * Infers the type of object supplied and constructs a contract
+   * @param {object|string|buffer} data
+   * @returns {Contract}
+   */
+  static from(data) {
+    if (data instanceof Contract) {
+      return Contract.fromObject(data.toObject());
+    } else if (Buffer.isBuffer(data)) {
+      return Contract.fromBuffer(data);
+    } else if (typeof data === 'string') {
+      return Contract.fromJSON(data);
+    } else {
+      return Contract.fromObject(data);
+    }
+  }
+
+  /**
+   * Create a topical OPCODE byte sequence from the provided criteria
+   * @param {object} criteria
+   * @param {number} criteria.size - Criteria degree OPCODE
+   * @param {number} criteria.duration - Criteria degree OPCODE
+   * @param {number} criteria.availability - Criteria degree OPCODE
+   * @param {number} criteria.speed - Criteria degree OPCODE
+   * @returns {buffer}
+   */
+  static createTopic(criteria) {
+    criteria = merge(Contract.CRITERIA, criteria);
+
+    return new Buffer([
+      constants.OPCODE_CONTRACT_PREFIX,
+      criteria.size,
+      criteria.duration,
+      criteria.availability,
+      criteria.speed
+    ]);
+  }
+
+  /**
+   * Compares two contracts against each other
+   * @param {Contract} c1 - Contract to compare
+   * @param {Contract} c2 - Contract to compare
+   * @returns {boolean}
+   */
+  static compare(c1, c2) {
+    const contract1 = c1.toObject();
+    const contract2 = c2.toObject();
+    const ignored = [
+      'renter_id',
+      'renter_signature',
+      'farmer_id',
+      'farmer_signature',
+      'payment_destination'
+    ];
+
+    ignored.forEach(function(prop) {
+      delete contract1[prop];
+      delete contract2[prop];
+    });
+
+    return JSON.stringify(contract1) === JSON.stringify(contract2);
+  }
+
+  /**
+   * Returns the property names between two contracts that differ
+   * @param {Contract} c1 - Contract to compare
+   * @param {contract} c2 - Contract to compare
+   * @returns {string[]} changedProperties
+   */
+  static diff(c1, c2) {
+    const differs = [];
+
+    c1 = c1.toObject();
+    c2 = c2.toObject();
+
+    for (let prop in c1) {
+      if (Array.isArray(c1[prop])) {
+        if (JSON.stringify(c1[prop]) !== JSON.stringify(c2[prop])) {
+          differs.push(prop);
+        }
+      } else if (c1[prop] !== c2[prop]) {
+        differs.push(prop);
+      }
+    }
+
+    return differs;
+  }
+
+}
+
+module.exports = Contract;
+</pre>
+    </article>
+</section>
+
+
+
+
+
+		</div>
+	</div>
+
+	<div class="clearfix"></div>
+
+	
+
+</div>
+</div>
+
+<div class="modal fade" id="searchResults">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">Search results</h4>
+      </div>
+      <div class="modal-body"></div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div>
+
+<footer>
+
+
+	<span class="copyright">
+	Copyright 2016 Gordon Hall
+	</span>
+
+<span class="jsdoc-message">
+	Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.3</a>
+	
+	using the <a href="https://github.com/docstrap/docstrap">DocStrap template</a>.
+</span>
+</footer>
+
+<script src="scripts/docstrap.lib.js"></script>
+<script src="scripts/toc.js"></script>
+<script type="text/javascript" src="scripts/fulltext-search-ui.js"></script>
+
+<script>
+$( function () {
+	$( "[id*='$']" ).each( function () {
+		var $this = $( this );
+
+		$this.attr( "id", $this.attr( "id" ).replace( "$", "__" ) );
+	} );
+
+	$( ".tutorial-section pre, .readme-section pre" ).each( function () {
+		var $this = $( this );
+
+		var example = $this.find( "code" );
+		exampleText = example.html();
+		var lang = /{@lang (.*?)}/.exec( exampleText );
+		if ( lang && lang[1] ) {
+			exampleText = exampleText.replace( lang[0], "" );
+			example.html( exampleText );
+			lang = lang[1];
+		} else {
+			var langClassMatch = example.parent()[0].className.match(/lang\-(\S+)/);
+			lang = langClassMatch ? langClassMatch[1] : "javascript";
+		}
+
+		if ( lang ) {
+
+			$this
+			.addClass( lang )
+			.addClass( "linenums" )
+			.html( example.html() );
+
+		}
+	} );
+
+	$('pre').each(function(i, block) {
+		hljs.highlightBlock(block);
+	});
+
+	$.catchAnchorLinks( {
+        navbarOffset: 10
+	} );
+	$( "#toc" ).toc( {
+		anchorName  : function ( i, heading, prefix ) {
+			var id = $( heading ).attr( "id" );
+			return id && id.replace(/\~/g, '-inner-').replace(/\./g, '-static-') || ( prefix + i );
+		},
+		selectors   : "#toc-content h1,#toc-content h2,#toc-content h3,#toc-content h4",
+		showAndHide : false,
+		smoothScrolling: true
+	} );
+
+	$( "#main span[id^='toc']" ).addClass( "toc-shim" );
+	$( '.dropdown-toggle' ).dropdown();
+
+    $( "table" ).each( function () {
+      var $this = $( this );
+      $this.addClass('table');
+    } );
+
+} );
+</script>
+
+
+
+<!--Navigation and Symbol Display-->
+
+
+<!--Google Analytics-->
+
+
+<script type="text/javascript">
+	$(document).ready(function() {
+		SearcherDisplay.init();
+	});
+</script>
+
+</body>
+</html>

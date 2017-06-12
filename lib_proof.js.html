@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width">
+	<title>ORC Source: lib/proof.js</title>
+
+	<!--[if lt IE 9]>
+	<script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+	<![endif]-->
+
+	<script src="scripts/highlight.min.js"></script>
+
+	<link type="text/css" rel="stylesheet" href="styles/site.cyborg.css">
+
+</head>
+
+<body>
+
+<div class="navbar navbar-default navbar-fixed-top ">
+<div class="container">
+	<div class="navbar-header">
+		<a class="navbar-brand" style="background-image:url()"  href="index.html">ORC</a>
+		<button class="navbar-toggle" type="button" data-toggle="collapse" data-target="#topNavigation">
+			<span class="icon-bar"></span>
+			<span class="icon-bar"></span>
+			<span class="icon-bar"></span>
+        </button>
+	</div>
+	<div class="navbar-collapse collapse" id="topNavigation">
+		<ul class="nav navbar-nav">
+			
+			<li class="dropdown">
+				<a href="modules.list.html" class="dropdown-toggle" data-toggle="dropdown">Modules<b class="caret"></b></a>
+				<ul class="dropdown-menu ">
+					<li><a href="module-orc.html">orc</a></li><li><a href="module-orc_constants.html">orc/constants</a></li><li><a href="module-orc_utils.html">orc/utils</a></li><li><a href="module-orc_version.html">orc/version</a></li>
+				</ul>
+			</li>
+			
+			<li class="dropdown">
+				<a href="classes.list.html" class="dropdown-toggle" data-toggle="dropdown">Classes<b class="caret"></b></a>
+				<ul class="dropdown-menu ">
+					<li><a href="Audit.html">Audit</a></li><li><a href="Contract.html">Contract</a></li><li><a href="Node.html">Node</a></li><li><a href="Offers.html">Offers</a></li><li><a href="Proof.html">Proof</a></li><li><a href="Rules.html">Rules</a></li><li><a href="Server.html">Server</a></li><li><a href="Shards.html">Shards</a></li><li><a href="Transport.html">Transport</a></li>
+				</ul>
+			</li>
+			
+			<li class="dropdown">
+				<a href="events.list.html" class="dropdown-toggle" data-toggle="dropdown">Events<b class="caret"></b></a>
+				<ul class="dropdown-menu ">
+					<li><a href="Offers.html#event:data">Offers#event:data</a></li><li><a href="Offers.html#event:end">Offers#event:end</a></li><li><a href="Offers.html#event:error">Offers#event:error</a></li><li><a href="Server.html#event:error">Server#event:error</a></li><li><a href="Server.html#event:shardDownloaded">Server#event:shardDownloaded</a></li><li><a href="Server.html#event:shardUploaded">Server#event:shardUploaded</a></li><li><a href="Transport.html#event:download">Transport#event:download</a></li><li><a href="Transport.html#event:upload">Transport#event:upload</a></li>
+				</ul>
+			</li>
+			
+			<li class="dropdown">
+				<a href="tutorials.list.html" class="dropdown-toggle" data-toggle="dropdown">Tutorials<b class="caret"></b></a>
+				<ul class="dropdown-menu ">
+					<li><a href="tutorial-config.html">Node Configuration & Setup</a></li><li><a href="tutorial-protocol.html">Protocol Specification</a></li>
+				</ul>
+			</li>
+			
+		</ul>
+		<div class="col-sm-3 col-md-4">
+            <form class="navbar-form" role="search">
+                <div class="input-group">
+                    <input type="text" class="form-control" placeholder="Search" name="q" id="search-input">
+                    <div class="input-group-btn">
+                        <button class="btn btn-primary" id="search-submit"><i class="glyphicon glyphicon-search"></i></button>
+                    </div>
+                </div>
+            </form>
+        </div>
+	</div>
+
+</div>
+</div>
+
+
+<div class="container" id="toc-content">
+<div class="row">
+
+	
+	<div class="col-md-12">
+	
+		<div id="main">
+			
+
+		<h1 class="page-title">Source: lib/proof.js</h1>
+    
+<section>
+    <article>
+        <pre
+            class="sunlight-highlight-javascript ">'use strict';
+
+const { Transform: TransformStream } = require('stream');
+const assert = require('assert');
+const MerkleTree = require('mtree');
+const crypto = require('crypto');
+const utils = require('./utils');
+
+
+/**
+ * Provides interface for proving possession of a file for an
+ * {@link AuditStream}
+ */
+class Proof extends TransformStream {
+
+  /**
+   * Verifies the proof given the merkle root and tree depth
+   * @static
+   * @memberof Proof
+   * @param {*} proof - Compact proof result
+   * @param {string} root - Merkle tree root from audit leaves
+   * @param {number} depth - Depth of the merkle tree
+   * @returns {string[]}
+   */
+  static verify(proof, root, depth) {
+    function _getChallengeResponse(tuple) {
+      let data = tuple || proof;
+
+      if (data.length === 1) {
+        return utils.rmd160sha256(data[0], 'hex');
+      }
+
+      if (Array.isArray(data[0])) {
+        return _getChallengeResponse(data[0]);
+      } else {
+        return _getChallengeResponse(data[1]);
+      }
+    }
+
+    function _collapse(proof, leaf, depth) {
+      if (depth === 0) {
+        assert(proof.length === 1, 'Invalid proof structure');
+        const proofhash = utils.rmd160sha256(proof[0], 'hex');
+        assert(Buffer.compare(proofhash, leaf) === 0, 'Invalid proof value');
+        return leaf;
+      }
+
+      let hashL, hashR;
+
+      if (Array.isArray(proof[0])) {
+        hashL = _collapse(proof[0], leaf, depth - 1);
+      } else {
+        hashL = proof[0];
+      }
+
+      if (Array.isArray(proof[1])) {
+        hashR = _collapse(proof[1], leaf, depth - 1);
+      } else {
+        hashR = proof[1];
+      }
+
+      return utils.rmd160sha256(Buffer.concat([
+        Buffer.from(hashL, 'hex'),
+        Buffer.from(hashR, 'hex')
+      ]));
+    }
+
+    return [
+      _collapse(proof, _getChallengeResponse(), depth - 1),
+      root
+    ];
+  }
+
+ /**
+  * @constructor
+  * @param {string[]} merkleLeaves - Bottom leaves of the audit merkle tree
+  * @param {string|buffer} hexChallenge - The challenge data in hex to prepend
+  * to shard
+  */
+  constructor(leaves, challenge) {
+    super({ objectMode: true });
+    assert(Array.isArray(leaves), 'Merkle leaves must be an array');
+    assert.ok(challenge, 'Invalid challenge supplied');
+
+    this._tree = new MerkleTree(this._generateLeaves(leaves),
+                                utils.rmd160sha256);
+
+    if (!Buffer.isBuffer(challenge)) {
+      this._challenge = Buffer.from(challenge, 'hex');
+    } else {
+      this._challenge = challenge;
+    }
+
+    this._hasher = crypto.createHash('sha256').update(this._challenge);
+    this._proof = null;
+  }
+
+  /**
+   * Returns the generated proof structure
+   * @return {array}
+   */
+  getProofResult() {
+    assert(Array.isArray(this._proof), 'Proof generation is not complete');
+    return this._proof;
+  }
+  /**
+   * Handles writing the shard data to the proof stream
+   * @private
+   */
+  _transform(chunk, encoding, next) {
+    this._hasher.update(chunk, encoding);
+    next();
+  }
+
+  /**
+   * Generates the proof from the read data
+   * @private
+   */
+  _flush(done) {
+    try {
+      this._generateProof();
+    } catch (err) {
+      return done(err);
+    }
+
+    this.push(this.getProofResult());
+    done();
+  }
+
+  /**
+   * Returns the index of the associated audit leaf
+   * @private
+   */
+  _findMatchIndex(leaves, leaf) {
+    let challengenum = -1;
+
+    for (let l = 0; l &lt; leaves.length; l++) {
+      if (Buffer.compare(leaves[l], leaf) === 0) {
+        challengenum = l;
+        break;
+      }
+    }
+
+    return challengenum;
+  }
+
+  /**
+   * Calculate audit response
+   * @private
+   * @param {string} challenge - Challenge string sent by auditor
+   * @returns {string[]} result - Challenge response
+   */
+  _generateProof() {
+    const response = utils.rmd160(this._hasher.digest());
+    const leaves = this._tree.level(this._tree.levels() - 1);
+    const leaf = utils.rmd160sha256(response);
+
+    let challengenum = this._findMatchIndex(leaves, leaf);
+    let branches = [response.toString('hex')];
+
+    assert(challengenum !== -1, 'Failed to generate proof');
+
+    for (let i = (this._tree.levels() - 1); i > 0; i--) {
+      let level = this._tree.level(i);
+
+      if (challengenum % 2 === 0) {
+        branches = [branches, level[challengenum + 1].toString('hex')];
+      } else {
+        branches = [level[challengenum - 1].toString('hex'), branches];
+      }
+
+      challengenum = Math.floor(challengenum / 2);
+    }
+
+    this._proof = branches;
+  }
+
+  /**
+   * Generates the bottom leaves of the tree to the next power of two
+   * @private
+   * @param {string[]} leaves
+   */
+  _generateLeaves(leaves) {
+    const numEmpty = utils.getNextPowerOfTwo(leaves.length) - leaves.length;
+    const emptyLeaves = [];
+
+    for (let i = 0; i &lt; numEmpty; i++) {
+      emptyLeaves.push(utils.rmd160sha256(''));
+    }
+
+    return leaves.map((i) => Buffer.from(i, 'hex')).concat(emptyLeaves);
+  }
+
+}
+
+module.exports = Proof;
+</pre>
+    </article>
+</section>
+
+
+
+
+
+		</div>
+	</div>
+
+	<div class="clearfix"></div>
+
+	
+
+</div>
+</div>
+
+<div class="modal fade" id="searchResults">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">Search results</h4>
+      </div>
+      <div class="modal-body"></div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div>
+
+<footer>
+
+
+	<span class="copyright">
+	Copyright 2016 Gordon Hall
+	</span>
+
+<span class="jsdoc-message">
+	Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.3</a>
+	
+	using the <a href="https://github.com/docstrap/docstrap">DocStrap template</a>.
+</span>
+</footer>
+
+<script src="scripts/docstrap.lib.js"></script>
+<script src="scripts/toc.js"></script>
+<script type="text/javascript" src="scripts/fulltext-search-ui.js"></script>
+
+<script>
+$( function () {
+	$( "[id*='$']" ).each( function () {
+		var $this = $( this );
+
+		$this.attr( "id", $this.attr( "id" ).replace( "$", "__" ) );
+	} );
+
+	$( ".tutorial-section pre, .readme-section pre" ).each( function () {
+		var $this = $( this );
+
+		var example = $this.find( "code" );
+		exampleText = example.html();
+		var lang = /{@lang (.*?)}/.exec( exampleText );
+		if ( lang && lang[1] ) {
+			exampleText = exampleText.replace( lang[0], "" );
+			example.html( exampleText );
+			lang = lang[1];
+		} else {
+			var langClassMatch = example.parent()[0].className.match(/lang\-(\S+)/);
+			lang = langClassMatch ? langClassMatch[1] : "javascript";
+		}
+
+		if ( lang ) {
+
+			$this
+			.addClass( lang )
+			.addClass( "linenums" )
+			.html( example.html() );
+
+		}
+	} );
+
+	$('pre').each(function(i, block) {
+		hljs.highlightBlock(block);
+	});
+
+	$.catchAnchorLinks( {
+        navbarOffset: 10
+	} );
+	$( "#toc" ).toc( {
+		anchorName  : function ( i, heading, prefix ) {
+			var id = $( heading ).attr( "id" );
+			return id && id.replace(/\~/g, '-inner-').replace(/\./g, '-static-') || ( prefix + i );
+		},
+		selectors   : "#toc-content h1,#toc-content h2,#toc-content h3,#toc-content h4",
+		showAndHide : false,
+		smoothScrolling: true
+	} );
+
+	$( "#main span[id^='toc']" ).addClass( "toc-shim" );
+	$( '.dropdown-toggle' ).dropdown();
+
+    $( "table" ).each( function () {
+      var $this = $( this );
+      $this.addClass('table');
+    } );
+
+} );
+</script>
+
+
+
+<!--Navigation and Symbol Display-->
+
+
+<!--Google Analytics-->
+
+
+<script type="text/javascript">
+	$(document).ready(function() {
+		SearcherDisplay.init();
+	});
+</script>
+
+</body>
+</html>

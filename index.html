@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width">
+	<title>ORC Index</title>
+
+	<!--[if lt IE 9]>
+	<script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+	<![endif]-->
+
+	<script src="scripts/highlight.min.js"></script>
+
+	<link type="text/css" rel="stylesheet" href="styles/site.cyborg.css">
+
+</head>
+
+<body>
+
+<div class="navbar navbar-default navbar-fixed-top ">
+<div class="container">
+	<div class="navbar-header">
+		<a class="navbar-brand" style="background-image:url()"  href="index.html">ORC</a>
+		<button class="navbar-toggle" type="button" data-toggle="collapse" data-target="#topNavigation">
+			<span class="icon-bar"></span>
+			<span class="icon-bar"></span>
+			<span class="icon-bar"></span>
+        </button>
+	</div>
+	<div class="navbar-collapse collapse" id="topNavigation">
+		<ul class="nav navbar-nav">
+			
+			<li class="dropdown">
+				<a href="modules.list.html" class="dropdown-toggle" data-toggle="dropdown">Modules<b class="caret"></b></a>
+				<ul class="dropdown-menu ">
+					<li><a href="module-orc.html">orc</a></li><li><a href="module-orc_constants.html">orc/constants</a></li><li><a href="module-orc_utils.html">orc/utils</a></li><li><a href="module-orc_version.html">orc/version</a></li>
+				</ul>
+			</li>
+			
+			<li class="dropdown">
+				<a href="classes.list.html" class="dropdown-toggle" data-toggle="dropdown">Classes<b class="caret"></b></a>
+				<ul class="dropdown-menu ">
+					<li><a href="Audit.html">Audit</a></li><li><a href="Contract.html">Contract</a></li><li><a href="Node.html">Node</a></li><li><a href="Offers.html">Offers</a></li><li><a href="Proof.html">Proof</a></li><li><a href="Rules.html">Rules</a></li><li><a href="Server.html">Server</a></li><li><a href="Shards.html">Shards</a></li><li><a href="Transport.html">Transport</a></li>
+				</ul>
+			</li>
+			
+			<li class="dropdown">
+				<a href="events.list.html" class="dropdown-toggle" data-toggle="dropdown">Events<b class="caret"></b></a>
+				<ul class="dropdown-menu ">
+					<li><a href="Offers.html#event:data">Offers#event:data</a></li><li><a href="Offers.html#event:end">Offers#event:end</a></li><li><a href="Offers.html#event:error">Offers#event:error</a></li><li><a href="Server.html#event:error">Server#event:error</a></li><li><a href="Server.html#event:shardDownloaded">Server#event:shardDownloaded</a></li><li><a href="Server.html#event:shardUploaded">Server#event:shardUploaded</a></li><li><a href="Transport.html#event:download">Transport#event:download</a></li><li><a href="Transport.html#event:upload">Transport#event:upload</a></li>
+				</ul>
+			</li>
+			
+			<li class="dropdown">
+				<a href="tutorials.list.html" class="dropdown-toggle" data-toggle="dropdown">Tutorials<b class="caret"></b></a>
+				<ul class="dropdown-menu ">
+					<li><a href="tutorial-config.html">Node Configuration & Setup</a></li><li><a href="tutorial-protocol.html">Protocol Specification</a></li>
+				</ul>
+			</li>
+			
+		</ul>
+		<div class="col-sm-3 col-md-4">
+            <form class="navbar-form" role="search">
+                <div class="input-group">
+                    <input type="text" class="form-control" placeholder="Search" name="q" id="search-input">
+                    <div class="input-group-btn">
+                        <button class="btn btn-primary" id="search-submit"><i class="glyphicon glyphicon-search"></i></button>
+                    </div>
+                </div>
+            </form>
+        </div>
+	</div>
+
+</div>
+</div>
+
+
+<div class="container" id="toc-content">
+<div class="row">
+
+	
+	<div class="col-md-8">
+	
+		<div id="main">
+			
+
+	
+	
+
+
+
+
+
+
+
+
+
+
+
+	
+	
+
+
+
+
+
+    <section class="readme-section">
+        <article><h1>Orc</h1><p><a href="https://travis-ci.org/orcproject/orc"><img src="https://img.shields.io/travis/orcproject/orc.svg?style=flat-square" alt="Build Status"></a>
+<a href="https://coveralls.io/r/orcproject/orc"><img src="https://img.shields.io/coveralls/orcproject/orc.svg?style=flat-square" alt="Coverage Status"></a>
+<a href="https://www.npmjs.com/package/@orcproject/orc"><img src="https://img.shields.io/npm/v/@orcproject/orc.svg?style=flat-square" alt="NPM"></a>
+<a href="https://raw.githubusercontent.com/orcproject/orc/master/LICENSE"><img src="https://img.shields.io/badge/license-AGPL3.0-blue.svg?style=flat-square" alt="License"></a></p>
+<p>The <strong>Onion Routed Cloud</strong>. Orc is a distributed anonymous cloud storage 
+network owned and operated by <em>all of us</em>.</p>
+<h2>Docker Installation</h2><p>Pull the <a href="https://hub.docker.com/r/orcproject/orc/">image from Docker Hub</a>.</p>
+<pre class="prettyprint source"><code>docker pull orcproject/orc</code></pre><p>Create a data directory on the host.</p>
+<pre class="prettyprint source"><code>mkdir path/to/orc.data</code></pre><p>Run the Orc container and mount the data directory.</p>
+<pre class="prettyprint source"><code>docker run -v path/to/orc.data:/root/.config/orc -t orcproject/orc:latest</code></pre><p>Modify the created configuration at <code>path/to/orc.data/config</code> as desired (see 
+<a href="https://github.com/orcproject/orc/blob/master/doc/config.md">the configuration docs</a>)
+and restart the container for the changes to take effect. You might wish to 
+expose the ports defined for <code>ControlPort</code> and <code>BridgePort</code> to the host (and 
+update <code>ControlHostname</code> and <code>BridgeHostname</code> to <code>0.0.0.0</code>) and map them to the 
+host.</p>
+<pre class="prettyprint source"><code>docker run \
+  --publish 127.0.0.1:4444:4444 \
+  --publish 127.0.0.1:4445:4445 \
+  --expose 4444 \
+  --expose 4445 \
+  --volume path/to/orc.data:/root/.config/orc \
+  --tty orcproject/orc:latest</code></pre><p>See the <a href="https://docs.docker.com/engine/reference/commandline/run/"><code>docker run</code> documentation</a> 
+for more information.</p>
+<h2>Manual Installation</h2><p>Make sure you have the following prerequisites installed:</p>
+<ul>
+<li><a href="https://z.cash">Zcash</a></li>
+<li><a href="https://torproject.org">Tor</a></li>
+<li><a href="https://git-scm.org">Git</a></li>
+<li><a href="https://nodejs.org">Node.js LTS + NPM (6.10.x)</a></li>
+<li>Python 2.7</li>
+<li>GCC/G++/Make</li>
+</ul>
+<h3>Node.js + NPM</h3><h4>GNU+Linux &amp; Mac OSX</h4><pre class="prettyprint source"><code>wget -qO- https://raw.githubusercontent.com/creationix/nvm/v0.33.0/install.sh | bash</code></pre><p>Close your shell and open an new one. Now that you can call the <code>nvm</code> program,
+install Node.js (which comes with NPM):</p>
+<pre class="prettyprint source"><code>nvm install --lts</code></pre><h3>Build Dependencies</h3><h4>GNU+Linux</h4><p>Debian / Ubuntu / Mint / Trisquel / and Friends</p>
+<pre class="prettyprint source"><code>apt install git python build-essential</code></pre><p>Red Hat / Fedora / CentOS</p>
+<pre class="prettyprint source"><code>yum groupinstall 'Development Tools'</code></pre><p>You might also find yourself lacking a C++11 compiler - 
+<a href="http://hiltmon.com/blog/2015/08/09/c-plus-plus-11-on-centos-6-dot-6/">see this</a>.</p>
+<h4>Mac OSX</h4><pre class="prettyprint source"><code>xcode-select --install</code></pre><h2>Installation</h2><h3>Daemon + Utilities CLI</h3><p>This package exposes two command line programs: <code>orc</code> and <code>orctool</code>. To 
+install these, use the <code>--global</code> flag.</p>
+<pre class="prettyprint source"><code>npm install -g @orcproject/orc</code></pre><h3>Core Library</h3><p>This package exposes a module providing a complete implementation of the 
+protocol. To use it in your project, from your project's root directory, 
+install as a dependency.</p>
+<pre class="prettyprint source"><code>npm install @orcproject/orc --save</code></pre><h2>Usage</h2><h3>Command Line</h3><p>Simply run <code>orc</code> with an optional <a href="https://github.com/orcproject/orc/blob/master/doc/config.md">configuration file</a> 
+using the <code>--config &lt;path/to/config&gt;</code> option.</p>
+<h3>Spawning Child</h3><p>The easiest way to get up and running with orc is to spawn a child process 
+from your program and connect to it over the control port. This package exposes 
+a convenience method for doing this. </p>
+<pre class="prettyprint source lang-js"><code>const orc = require('@orcproject/orc');
+const { child, controller } = orc(config);
+
+// The `config` argument can be either a string path to config file to use or 
+// a JSON dictionary of config properties. See configuration documentaion.
+
+child.stdout.pipe(process.stdout); // Pipe log out put to stdout
+
+controller.on('ready', () => {
+  controller.invoke('ping', [contact], console.log); // Ping a contact
+});</code></pre><h3>Control Interface</h3><p>You can run <code>orc</code> standalone and control it from any other application over 
+its TCP control interface. See the <em>Resources</em> section below to read up on the 
+control protocol to implement it in the language of your choice. If using 
+Node.js, you can use the client bundled in this package.</p>
+<pre class="prettyprint source lang-js"><code>const orc = require('@orcproject/orc');
+const controller = new orc.control.Client();
+
+controller.on('ready', () => {
+  controller.invoke('ping', [contact], (err) => { /* handle result */ });
+});
+
+controller.connect(port);</code></pre><p>If you wish to control your <code>orc</code> node from another language, simply connect 
+to the control port over a TCP socket and use the 
+<a href="https://github.com/bookchin/boscar">BOSCAR</a> protocol to send RPC messages to 
+the node. The methods and argument signatures map directly to the <code>orc.Node</code> 
+API describe in the documentation. See <em>Resources</em> below.</p>
+<h3>Direct Implementation</h3><p>Since <code>orc</code> exposes all of the internals used to implement it, you can use 
+the same classes to directly implement your own Orc node within your project.
+Just import the package and construct a node instance with options.</p>
+<pre class="prettyprint source lang-js"><code>const orc = require('@orcproject/orc');
+const node = new orc.Node(options);
+
+node.listen(8443);
+node.join(['known_node_id', { /* contact data */ }]);</code></pre><p>Consult the documentation for a complete reference of the API exposed from the 
+<code>Node</code> object. Further documentation on usage can be found by reviewing the 
+end-to-end test suite in <code>test/node.e2e.js</code>. Note that using this package as a 
+library provides a very low level interface for the Orc protocol and is not 
+intended for casual integration with the Orc network.</p>
+<h2>Resources</h2><ul>
+<li><a href="https://orcproject.github.io/orc/">Orc Documentation</a></li>
+<li><a href="https://raw.githubusercontent.com/orcproject/protocol/master/README.md">Orc Protocol Specification</a></li>
+</ul>
+<h2>License</h2><p>Orc - Onion Routed Cloud<br>Copyright (C) 2017  Gordon Hall<br>Copyright (C) 2016  Storj Labs, Inc</p>
+<p>This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as published
+by the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.</p>
+<p>This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.</p>
+<p>You should have received a copy of the GNU Affero General Public License
+along with this program.  If not, see
+<a href="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</a>.</p></article>
+    </section>
+
+
+
+
+
+
+
+		</div>
+	</div>
+
+	<div class="clearfix"></div>
+
+	
+		<div class="col-md-3">
+			<div id="toc" class="col-md-3 hidden-xs hidden-sm hidden-md"></div>
+		</div>
+	
+
+</div>
+</div>
+
+<div class="modal fade" id="searchResults">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">Search results</h4>
+      </div>
+      <div class="modal-body"></div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div>
+
+<footer>
+
+
+	<span class="copyright">
+	Copyright 2016 Gordon Hall
+	</span>
+
+<span class="jsdoc-message">
+	Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.3</a>
+	
+	using the <a href="https://github.com/docstrap/docstrap">DocStrap template</a>.
+</span>
+</footer>
+
+<script src="scripts/docstrap.lib.js"></script>
+<script src="scripts/toc.js"></script>
+<script type="text/javascript" src="scripts/fulltext-search-ui.js"></script>
+
+<script>
+$( function () {
+	$( "[id*='$']" ).each( function () {
+		var $this = $( this );
+
+		$this.attr( "id", $this.attr( "id" ).replace( "$", "__" ) );
+	} );
+
+	$( ".tutorial-section pre, .readme-section pre" ).each( function () {
+		var $this = $( this );
+
+		var example = $this.find( "code" );
+		exampleText = example.html();
+		var lang = /{@lang (.*?)}/.exec( exampleText );
+		if ( lang && lang[1] ) {
+			exampleText = exampleText.replace( lang[0], "" );
+			example.html( exampleText );
+			lang = lang[1];
+		} else {
+			var langClassMatch = example.parent()[0].className.match(/lang\-(\S+)/);
+			lang = langClassMatch ? langClassMatch[1] : "javascript";
+		}
+
+		if ( lang ) {
+
+			$this
+			.addClass( lang )
+			.addClass( "linenums" )
+			.html( example.html() );
+
+		}
+	} );
+
+	$('pre').each(function(i, block) {
+		hljs.highlightBlock(block);
+	});
+
+	$.catchAnchorLinks( {
+        navbarOffset: 10
+	} );
+	$( "#toc" ).toc( {
+		anchorName  : function ( i, heading, prefix ) {
+			var id = $( heading ).attr( "id" );
+			return id && id.replace(/\~/g, '-inner-').replace(/\./g, '-static-') || ( prefix + i );
+		},
+		selectors   : "#toc-content h1,#toc-content h2,#toc-content h3,#toc-content h4",
+		showAndHide : false,
+		smoothScrolling: true
+	} );
+
+	$( "#main span[id^='toc']" ).addClass( "toc-shim" );
+	$( '.dropdown-toggle' ).dropdown();
+
+    $( "table" ).each( function () {
+      var $this = $( this );
+      $this.addClass('table');
+    } );
+
+} );
+</script>
+
+
+
+<!--Navigation and Symbol Display-->
+
+
+<!--Google Analytics-->
+
+
+<script type="text/javascript">
+	$(document).ready(function() {
+		SearcherDisplay.init();
+	});
+</script>
+
+</body>
+</html>

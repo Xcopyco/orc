@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width">
+	<title>ORC Source: lib/audit.js</title>
+
+	<!--[if lt IE 9]>
+	<script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+	<![endif]-->
+
+	<script src="scripts/highlight.min.js"></script>
+
+	<link type="text/css" rel="stylesheet" href="styles/site.cyborg.css">
+
+</head>
+
+<body>
+
+<div class="navbar navbar-default navbar-fixed-top ">
+<div class="container">
+	<div class="navbar-header">
+		<a class="navbar-brand" style="background-image:url()"  href="index.html">ORC</a>
+		<button class="navbar-toggle" type="button" data-toggle="collapse" data-target="#topNavigation">
+			<span class="icon-bar"></span>
+			<span class="icon-bar"></span>
+			<span class="icon-bar"></span>
+        </button>
+	</div>
+	<div class="navbar-collapse collapse" id="topNavigation">
+		<ul class="nav navbar-nav">
+			
+			<li class="dropdown">
+				<a href="modules.list.html" class="dropdown-toggle" data-toggle="dropdown">Modules<b class="caret"></b></a>
+				<ul class="dropdown-menu ">
+					<li><a href="module-orc.html">orc</a></li><li><a href="module-orc_constants.html">orc/constants</a></li><li><a href="module-orc_utils.html">orc/utils</a></li><li><a href="module-orc_version.html">orc/version</a></li>
+				</ul>
+			</li>
+			
+			<li class="dropdown">
+				<a href="classes.list.html" class="dropdown-toggle" data-toggle="dropdown">Classes<b class="caret"></b></a>
+				<ul class="dropdown-menu ">
+					<li><a href="Audit.html">Audit</a></li><li><a href="Contract.html">Contract</a></li><li><a href="Node.html">Node</a></li><li><a href="Offers.html">Offers</a></li><li><a href="Proof.html">Proof</a></li><li><a href="Rules.html">Rules</a></li><li><a href="Server.html">Server</a></li><li><a href="Shards.html">Shards</a></li><li><a href="Transport.html">Transport</a></li>
+				</ul>
+			</li>
+			
+			<li class="dropdown">
+				<a href="events.list.html" class="dropdown-toggle" data-toggle="dropdown">Events<b class="caret"></b></a>
+				<ul class="dropdown-menu ">
+					<li><a href="Offers.html#event:data">Offers#event:data</a></li><li><a href="Offers.html#event:end">Offers#event:end</a></li><li><a href="Offers.html#event:error">Offers#event:error</a></li><li><a href="Server.html#event:error">Server#event:error</a></li><li><a href="Server.html#event:shardDownloaded">Server#event:shardDownloaded</a></li><li><a href="Server.html#event:shardUploaded">Server#event:shardUploaded</a></li><li><a href="Transport.html#event:download">Transport#event:download</a></li><li><a href="Transport.html#event:upload">Transport#event:upload</a></li>
+				</ul>
+			</li>
+			
+			<li class="dropdown">
+				<a href="tutorials.list.html" class="dropdown-toggle" data-toggle="dropdown">Tutorials<b class="caret"></b></a>
+				<ul class="dropdown-menu ">
+					<li><a href="tutorial-config.html">Node Configuration & Setup</a></li><li><a href="tutorial-protocol.html">Protocol Specification</a></li>
+				</ul>
+			</li>
+			
+		</ul>
+		<div class="col-sm-3 col-md-4">
+            <form class="navbar-form" role="search">
+                <div class="input-group">
+                    <input type="text" class="form-control" placeholder="Search" name="q" id="search-input">
+                    <div class="input-group-btn">
+                        <button class="btn btn-primary" id="search-submit"><i class="glyphicon glyphicon-search"></i></button>
+                    </div>
+                </div>
+            </form>
+        </div>
+	</div>
+
+</div>
+</div>
+
+
+<div class="container" id="toc-content">
+<div class="row">
+
+	
+	<div class="col-md-12">
+	
+		<div id="main">
+			
+
+		<h1 class="page-title">Source: lib/audit.js</h1>
+    
+<section>
+    <article>
+        <pre
+            class="sunlight-highlight-javascript ">'use strict';
+
+const { Writable: WritableStream } = require('stream');
+const assert = require('assert');
+const crypto = require('crypto');
+const constants = require('./constants');
+const MerkleTree = require('mtree');
+const utils = require('./utils');
+
+
+/**
+ * Represents a streaming audit challenge generator
+ */
+class Audit extends WritableStream {
+
+  /**
+   * @constructor
+   * @param {number} audits - Total number of challenges to generate
+   */
+  constructor(audits) {
+    super();
+
+    assert(typeof audits === 'number', 'Invalid number of audits supplied');
+    assert(!Number.isNaN(audits), 'Invalid number of audits supplied');
+    assert(Number.isFinite(audits), 'Invalid number of audits supplied');
+
+    this._audits = audits;
+    this._finished = false;
+    this._challenges = [];
+    this._inputs = this._prepareChallenges();
+
+    this.on('finish', this._generateTree.bind(this));
+  }
+
+  /**
+   * Returns the bottom leaves of the merkle tree for sending to farmer
+   * @returns {Array} leaves - Bottom merkle leaves of audit tree
+   */
+  getPublicRecord() {
+    assert(this._finished, 'Challenge generation is not finished');
+    return this._tree.level(this._tree.levels() - 1)
+      .map((i) => i.toString('hex'));
+  }
+
+  /**
+   * Returns the challenges, the tree depth, and merkle root
+   * @returns {Object} challenge - Private audit record with challenges
+   */
+  getPrivateRecord() {
+    assert(this._finished, 'Challenge generation is not finished');
+    return {
+      root: this._tree.root(),
+      depth: this._tree.levels(),
+      challenges: this._challenges.map((i) => i.toString('hex'))
+    };
+  }
+
+  /**
+   * Implements the underlying write method
+   * @private
+   */
+  _write(bytes, encoding, next) {
+    this._inputs.forEach((input, i) => {
+      if (i &lt; this._audits) {
+        input.update(bytes);
+      }
+    });
+    next();
+  }
+
+  /**
+   * Prepares the challenge hasher instances
+   * @private
+   */
+  _prepareChallenges() {
+    let iterations = 0;
+    let inputs = [];
+
+    while (iterations &lt; this._audits) {
+      const challenge = this._generateChallenge();
+      const input = this._createResponseInput(challenge);
+
+      this._challenges.push(challenge);
+      inputs.push(input);
+      iterations++;
+    }
+
+    while (iterations &lt; utils.getNextPowerOfTwo(this._audits)) {
+      inputs.push(utils.rmd160sha256(''));
+      iterations++;
+    }
+
+    return inputs;
+  }
+
+  /**
+   * Generate the audit merkle tree from a series of challenges
+   * @private
+   */
+  _generateTree() {
+    this._finished = true;
+    this._tree = new MerkleTree(this._inputs.map((input, i) => {
+      if (i >= this._audits) {
+        return input;
+      } else {
+        return utils.rmd160sha256(utils.rmd160(input.digest()));
+      }
+    }), utils.rmd160sha256);
+  }
+
+  /**
+   * Generate a random challenge buffer
+   * @private
+   * @returns {buffer}
+   */
+  _generateChallenge() {
+    return crypto.randomBytes(constants.AUDIT_BYTES);
+  }
+
+  /**
+   * Create a challenge response input to merkle tree
+   * @private
+   */
+  _createResponseInput(challenge) {
+    return crypto.createHash('sha256').update(challenge);
+  }
+
+  /**
+   * Returns a new instance from the predefined challenges and tree
+   * @param {array} challenges - The precomputed challenges
+   * @param {array} tree - The bottom leaves of the existing merkle tree
+   * @returns {Audit}
+   */
+  static fromRecords(challenges, tree) {
+    assert(Array.isArray(challenges), 'Invalid challenges supplied');
+    assert(Array.isArray(tree), 'Invalid tree supplied');
+    assert(
+      tree.length === utils.getNextPowerOfTwo(challenges.length),
+      'Challenges and tree do not match'
+    );
+
+    tree = tree.map((i) => Buffer.from(i, 'hex'));
+
+    const auditor = new Audit(challenges.length);
+
+    auditor._challenges = challenges;
+    auditor._tree = new MerkleTree(tree, utils.rmd160sha256);
+    auditor._finished = true;
+
+    return auditor;
+  }
+
+}
+
+module.exports = Audit;
+</pre>
+    </article>
+</section>
+
+
+
+
+
+		</div>
+	</div>
+
+	<div class="clearfix"></div>
+
+	
+
+</div>
+</div>
+
+<div class="modal fade" id="searchResults">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">Search results</h4>
+      </div>
+      <div class="modal-body"></div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div>
+
+<footer>
+
+
+	<span class="copyright">
+	Copyright 2016 Gordon Hall
+	</span>
+
+<span class="jsdoc-message">
+	Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.3</a>
+	
+	using the <a href="https://github.com/docstrap/docstrap">DocStrap template</a>.
+</span>
+</footer>
+
+<script src="scripts/docstrap.lib.js"></script>
+<script src="scripts/toc.js"></script>
+<script type="text/javascript" src="scripts/fulltext-search-ui.js"></script>
+
+<script>
+$( function () {
+	$( "[id*='$']" ).each( function () {
+		var $this = $( this );
+
+		$this.attr( "id", $this.attr( "id" ).replace( "$", "__" ) );
+	} );
+
+	$( ".tutorial-section pre, .readme-section pre" ).each( function () {
+		var $this = $( this );
+
+		var example = $this.find( "code" );
+		exampleText = example.html();
+		var lang = /{@lang (.*?)}/.exec( exampleText );
+		if ( lang && lang[1] ) {
+			exampleText = exampleText.replace( lang[0], "" );
+			example.html( exampleText );
+			lang = lang[1];
+		} else {
+			var langClassMatch = example.parent()[0].className.match(/lang\-(\S+)/);
+			lang = langClassMatch ? langClassMatch[1] : "javascript";
+		}
+
+		if ( lang ) {
+
+			$this
+			.addClass( lang )
+			.addClass( "linenums" )
+			.html( example.html() );
+
+		}
+	} );
+
+	$('pre').each(function(i, block) {
+		hljs.highlightBlock(block);
+	});
+
+	$.catchAnchorLinks( {
+        navbarOffset: 10
+	} );
+	$( "#toc" ).toc( {
+		anchorName  : function ( i, heading, prefix ) {
+			var id = $( heading ).attr( "id" );
+			return id && id.replace(/\~/g, '-inner-').replace(/\./g, '-static-') || ( prefix + i );
+		},
+		selectors   : "#toc-content h1,#toc-content h2,#toc-content h3,#toc-content h4",
+		showAndHide : false,
+		smoothScrolling: true
+	} );
+
+	$( "#main span[id^='toc']" ).addClass( "toc-shim" );
+	$( '.dropdown-toggle' ).dropdown();
+
+    $( "table" ).each( function () {
+      var $this = $( this );
+      $this.addClass('table');
+    } );
+
+} );
+</script>
+
+
+
+<!--Navigation and Symbol Display-->
+
+
+<!--Google Analytics-->
+
+
+<script type="text/javascript">
+	$(document).ready(function() {
+		SearcherDisplay.init();
+	});
+</script>
+
+</body>
+</html>

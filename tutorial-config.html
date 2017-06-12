@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width">
+	<title>ORC Tutorial: Node Configuration & Setup</title>
+
+	<!--[if lt IE 9]>
+	<script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+	<![endif]-->
+
+	<script src="scripts/highlight.min.js"></script>
+
+	<link type="text/css" rel="stylesheet" href="styles/site.cyborg.css">
+
+</head>
+
+<body>
+
+<div class="navbar navbar-default navbar-fixed-top ">
+<div class="container">
+	<div class="navbar-header">
+		<a class="navbar-brand" style="background-image:url()"  href="index.html">ORC</a>
+		<button class="navbar-toggle" type="button" data-toggle="collapse" data-target="#topNavigation">
+			<span class="icon-bar"></span>
+			<span class="icon-bar"></span>
+			<span class="icon-bar"></span>
+        </button>
+	</div>
+	<div class="navbar-collapse collapse" id="topNavigation">
+		<ul class="nav navbar-nav">
+			
+			<li class="dropdown">
+				<a href="modules.list.html" class="dropdown-toggle" data-toggle="dropdown">Modules<b class="caret"></b></a>
+				<ul class="dropdown-menu ">
+					<li><a href="module-orc.html">orc</a></li><li><a href="module-orc_constants.html">orc/constants</a></li><li><a href="module-orc_utils.html">orc/utils</a></li><li><a href="module-orc_version.html">orc/version</a></li>
+				</ul>
+			</li>
+			
+			<li class="dropdown">
+				<a href="classes.list.html" class="dropdown-toggle" data-toggle="dropdown">Classes<b class="caret"></b></a>
+				<ul class="dropdown-menu ">
+					<li><a href="Audit.html">Audit</a></li><li><a href="Contract.html">Contract</a></li><li><a href="Node.html">Node</a></li><li><a href="Offers.html">Offers</a></li><li><a href="Proof.html">Proof</a></li><li><a href="Rules.html">Rules</a></li><li><a href="Server.html">Server</a></li><li><a href="Shards.html">Shards</a></li><li><a href="Transport.html">Transport</a></li>
+				</ul>
+			</li>
+			
+			<li class="dropdown">
+				<a href="events.list.html" class="dropdown-toggle" data-toggle="dropdown">Events<b class="caret"></b></a>
+				<ul class="dropdown-menu ">
+					<li><a href="Offers.html#event:data">Offers#event:data</a></li><li><a href="Offers.html#event:end">Offers#event:end</a></li><li><a href="Offers.html#event:error">Offers#event:error</a></li><li><a href="Server.html#event:error">Server#event:error</a></li><li><a href="Server.html#event:shardDownloaded">Server#event:shardDownloaded</a></li><li><a href="Server.html#event:shardUploaded">Server#event:shardUploaded</a></li><li><a href="Transport.html#event:download">Transport#event:download</a></li><li><a href="Transport.html#event:upload">Transport#event:upload</a></li>
+				</ul>
+			</li>
+			
+			<li class="dropdown">
+				<a href="tutorials.list.html" class="dropdown-toggle" data-toggle="dropdown">Tutorials<b class="caret"></b></a>
+				<ul class="dropdown-menu ">
+					<li><a href="tutorial-config.html">Node Configuration & Setup</a></li><li><a href="tutorial-protocol.html">Protocol Specification</a></li>
+				</ul>
+			</li>
+			
+		</ul>
+		<div class="col-sm-3 col-md-4">
+            <form class="navbar-form" role="search">
+                <div class="input-group">
+                    <input type="text" class="form-control" placeholder="Search" name="q" id="search-input">
+                    <div class="input-group-btn">
+                        <button class="btn btn-primary" id="search-submit"><i class="glyphicon glyphicon-search"></i></button>
+                    </div>
+                </div>
+            </form>
+        </div>
+	</div>
+
+</div>
+</div>
+
+
+<div class="container" id="toc-content">
+<div class="row">
+
+	
+	<div class="col-md-12">
+	
+		<div id="main">
+			<section class="tutorial-section">
+
+<header>
+    
+
+    <h2>Node Configuration & Setup</h2>
+</header>
+
+<article>
+    <p>This guide will show you how to get started with running <code>orc</code>! An Orc 
+node requires a configuration file to get up and running. The path to this 
+file is given to <code>orc</code> when starting a node.</p>
+<pre class="prettyprint source"><code>orc --config path/to/orc.config</code></pre><p>If a configuration file is not supplied, a minimal default configuration is 
+automatically created and used, which will generate a private extended key, 
+self-signed SSL certificate, and storage for shards, contracts, and directory 
+information. All of this data will be created and stored in 
+<code>$HOME/.config/orc</code>, yielding a directory structure like this:</p>
+<pre class="prettyprint source"><code>+- ~/.config/orc
+  + - x_private_key
+  + - onion_key
+  + - config
+  + - service_key.pem
+  + - certificate.pem
+  + - /contracts.db
+    + - ...
+  + - /shards.kfs
+    + - ...
+  + - /directory.db
+    + - ...</code></pre><p>The locations of all of these files is defined in your configuration file. 
+Below is a complete sample config in INI format (though JSON is also 
+supported). Comments are inline to describe each property.</p>
+<h2>Default Configuration</h2><pre class="prettyprint source lang-ini"><code>;
+; Orc Sample Configuration
+;
+
+; Path to private extended key file to use for master identity.
+; Generate one with:
+; 
+;   orctool generate-key --extended >> x_private_key
+;
+PrivateExtendedKeyPath = /home/bookchin/.config/orc/x_private_key
+
+; The index for deriving this child node's identity. This allows you to run 
+; multiple nodes with the same private extended key. If your private extended 
+; key was converted from an old non-hierarchically-deterministic private key,
+; you must set the value to -1
+ChildDerivationIndex = 0
+
+; Set the base directory (parent) for where the contracts.db folder will be 
+; placed. The contracts.db holds storage contracts between you and other nodes.
+ContractStorageBaseDir = /home/bookchin/.config/orc
+
+; Set the base directory (parent) for where the shards.kfs folder will be 
+; placed. The shards.kfs stores other nodes data shards, so be sure you set 
+; this to where you intend to store farmed shards.
+ShardStorageBaseDir = /home/bookchin/.config/orc
+
+; Define the maximum size you wish to allocate for farming shards. This can be 
+; increased later, but decreasing it will not delete existing data.
+ShardStorageMaxAllocation = 0GB
+
+; Maximum number of open file descriptors per shard bucket in shards.kfs. It's 
+; best to leave it at the default here (or not define it at all) unless you 
+; know what you are doing.
+ShardStorageMaxOpenFiles = 50
+
+; Enables renter nodes to directly claim storage capacity based on any capacity 
+; announcements you have made. If you are farming, set this value once for every 
+; trusted renter public extended key from which you will accept claims or once 
+; with a value of *
+AllowDirectStorageClaims[] = *
+
+; Set the base directory (parent) for where the directory.db folder will be 
+; placed. The directory.db holds key-value pairs for the distributed hash 
+; table, which serve various purposes such as reputation data on other peers.
+DirectoryStorageBaseDir = /home/bookchin/.config/orc
+
+; Paths to this node's SSL key and certificat. If you don't have one, you can 
+; generate one with the following:
+;
+;   orctool generate-cert | csplit - 28
+;   mv xx00 service_key.pem
+;   mv xx01 certificate.pem
+;
+TransportServiceKeyPath = /home/bookchin/.config/orc/service_key.pem
+TransportCertificatePath = /home/bookchin/.config/orc/certificate.pem
+
+; Path to this node's RSA1024 Tor hidden service private key. If this path does 
+; not exist, it will be automatically generated for you. If you'd like to 
+; generate one yourself, you can use:
+;
+;   orctool generate-onion >> onion_key
+;
+OnionServicePrivateKeyPath = /home/bookchin/.config/orc/onion_key
+
+; Set the public port number at which your node will be reachable to others. 
+; This should be the port you forwarded.
+PublicPort = 443
+
+; Set the local port to bind the node service.
+ListenPort = 4443
+
+; Enables bandwidth metering and hibernation mode. When the property 
+; BandwidthAccountingEnabled is 1, we will enter low-bandwidth mode if the we
+; exceed BandwidthAccountingMax within the period defined by the property 
+; BandwidthAccountingReset until the interval is finished
+BandwidthAccountingEnabled = 0
+BandwidthAccountingMax = 5GB
+BandwidthAccountingReset = 24HR
+
+; Set to 1 for more detailed logging, which is useful for debugging
+VerboseLoggingEnabled = 1
+
+; Set the ControlPort to bind the control interface. Used for controlling the 
+; node from other applications. Be sure that ControlHostname is kept set to 
+; a loopback address, unless you have taken other measures to prevent others 
+; from controlling your node.
+ControlPort = 4444
+ControlHostname = 127.0.0.1
+
+; Add a map of network bootstrap nodes to this section to use for discovering 
+; other peers. Default configuration should come with a list of known and 
+; trusted contacts. Formatted as &quot;https://{onion}:{port}&quot;.
+NetworkBootstrapNodes[] = https://orcjd7xgshpovm6i.onion:443
+NetworkBootstrapNodes[] = https://orcjfg52ty6ljv54.onion:443
+NetworkBootstrapNodes[] = https://orce4nqoa6muz3gt.onion:443
+NetworkBootstrapNodes[] = https://orcwfkilxjxo63mr.onion:443
+
+; When enabled via &quot;renter&quot; profile, bind a local bridge server that allows for
+; GET and POST HTTP requests for uploading and downloading files from the 
+; network. The bridge will handle encryption and erasure coding for you.
+; Optionally, protect the local bridge access using HTTP Basic Authentication
+; credentials defined here.
+BridgeHostname = 127.0.0.1
+BridgePort = 4445
+BridgeAuthenticationEnabled = 0
+BridgeAuthenticationUser = orc
+BridgeAuthenticationPassword = 1b5d3daa16b3343560bcf0377547b1c0
+
+; Pre-scripted profiles to enable after bootstrapping. Renter profiles listen 
+; for capacity announcements and build a cache while exposing a bridge server 
+; for uploading and downloading data. Farmer profiles publish capacity 
+; announcements and listen for contracts to store data. Directory profiles 
+; listen for a number of events but do not act of them, instead providing a
+; cache of network statistics.
+;ProfilesEnabled[] = renter
+;ProfilesEnabled[] = farmer
+;ProfilesEnabled[] = directory</code></pre>
+</article>
+
+</section>
+
+		</div>
+	</div>
+
+	<div class="clearfix"></div>
+
+	
+
+</div>
+</div>
+
+<div class="modal fade" id="searchResults">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">Search results</h4>
+      </div>
+      <div class="modal-body"></div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div>
+
+<footer>
+
+
+	<span class="copyright">
+	Copyright 2016 Gordon Hall
+	</span>
+
+<span class="jsdoc-message">
+	Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.3</a>
+	
+	using the <a href="https://github.com/docstrap/docstrap">DocStrap template</a>.
+</span>
+</footer>
+
+<script src="scripts/docstrap.lib.js"></script>
+<script src="scripts/toc.js"></script>
+<script type="text/javascript" src="scripts/fulltext-search-ui.js"></script>
+
+<script>
+$( function () {
+	$( "[id*='$']" ).each( function () {
+		var $this = $( this );
+
+		$this.attr( "id", $this.attr( "id" ).replace( "$", "__" ) );
+	} );
+
+	$( ".tutorial-section pre, .readme-section pre" ).each( function () {
+		var $this = $( this );
+
+		var example = $this.find( "code" );
+		exampleText = example.html();
+		var lang = /{@lang (.*?)}/.exec( exampleText );
+		if ( lang && lang[1] ) {
+			exampleText = exampleText.replace( lang[0], "" );
+			example.html( exampleText );
+			lang = lang[1];
+		} else {
+			var langClassMatch = example.parent()[0].className.match(/lang\-(\S+)/);
+			lang = langClassMatch ? langClassMatch[1] : "javascript";
+		}
+
+		if ( lang ) {
+
+			$this
+			.addClass( lang )
+			.addClass( "linenums" )
+			.html( example.html() );
+
+		}
+	} );
+
+	$('pre').each(function(i, block) {
+		hljs.highlightBlock(block);
+	});
+
+	$.catchAnchorLinks( {
+        navbarOffset: 10
+	} );
+	$( "#toc" ).toc( {
+		anchorName  : function ( i, heading, prefix ) {
+			var id = $( heading ).attr( "id" );
+			return id && id.replace(/\~/g, '-inner-').replace(/\./g, '-static-') || ( prefix + i );
+		},
+		selectors   : "#toc-content h1,#toc-content h2,#toc-content h3,#toc-content h4",
+		showAndHide : false,
+		smoothScrolling: true
+	} );
+
+	$( "#main span[id^='toc']" ).addClass( "toc-shim" );
+	$( '.dropdown-toggle' ).dropdown();
+
+    $( "table" ).each( function () {
+      var $this = $( this );
+      $this.addClass('table');
+    } );
+
+} );
+</script>
+
+
+
+<!--Navigation and Symbol Display-->
+
+
+<!--Google Analytics-->
+
+
+<script type="text/javascript">
+	$(document).ready(function() {
+		SearcherDisplay.init();
+	});
+</script>
+
+</body>
+</html>
