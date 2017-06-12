@@ -149,7 +149,7 @@ BridgeAuthenticationPassword = 1b5d3daa16b3343560bcf0377547b1c0
 ; announcements and listen for contracts to store data. Directory profiles 
 ; listen for a number of events but do not act of them, instead providing a
 ; cache of network statistics.
-ProfilesEnabled[] = renter
-ProfilesEnabled[] = farmer
-ProfilesEnabled[] = directory
+;ProfilesEnabled[] = renter
+;ProfilesEnabled[] = farmer
+;ProfilesEnabled[] = directory
 ```

@@ -9,15 +9,56 @@ Orc
 The **Onion Routed Cloud**. Orc is a distributed anonymous cloud storage 
 network owned and operated by _all of us_.
 
-Prerequisites
--------------
+Docker Installation
+-------------------
+
+Pull the [image from Docker Hub](https://hub.docker.com/r/orcproject/orc/).
+
+```
+docker pull orcproject/orc
+```
+
+Create a data directory on the host.
+
+```
+mkdir path/to/orc.data
+```
+
+Run the Orc container and mount the data directory.
+
+```
+docker run -v path/to/orc.data:/root/.config/orc -t orcproject/orc:latest
+```
+
+Modify the created configuration at `path/to/orc.data/config` as desired (see 
+[the configuration docs](https://github.com/orcproject/orc/blob/master/doc/config.md))
+and restart the container for the changes to take effect. You might wish to 
+expose the ports defined for `ControlPort` and `BridgePort` to the host (and 
+update `ControlHostname` and `BridgeHostname` to `0.0.0.0`) and map them to the 
+host.
+
+```
+docker run \
+  --publish 127.0.0.1:4444:4444 \
+  --publish 127.0.0.1:4445:4445 \
+  --expose 4444 \
+  --expose 4445 \
+  --volume path/to/orc.data:/root/.config/orc \
+  --tty orcproject/orc:latest
+```
+
+See the [`docker run` documentation](https://docs.docker.com/engine/reference/commandline/run/) 
+for more information.
+
+Manual Installation
+-------------------
 
 Make sure you have the following prerequisites installed:
 
-* Tor
-* Git
-* Node.js LTS (6.10.x)
-* NPM
+* [Zcash](https://z.cash)
+* [Tor](https://torproject.org)
+* [Git](https://git-scm.org)
+* [Node.js LTS + NPM (6.10.x)](https://nodejs.org)
 * Python 2.7
 * GCC/G++/Make
 

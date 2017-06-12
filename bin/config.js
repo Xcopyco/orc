@@ -65,7 +65,7 @@ module.exports = {
   BridgeAuthenticationPassword: randomBytes(16).toString('hex'),
 
   // Node Profiles
-  ProfilesEnabled: ['renter', 'farmer', 'directory']
+  ProfilesEnabled: [] // renter, farmer, directory
 
 };
 
