@@ -86,9 +86,14 @@ npm install @orcproject/orc --save
 Usage
 -----
 
+### Command Line
+
+Simply run `orc` with an optional [configuration file](https://github.com/orcproject/orc/blob/master/doc/config.md) 
+using the `--config <path/to/config>` option.
+
 ### Spawning Child
 
-The easiest way to get up and running with storjd is to spawn a child process 
+The easiest way to get up and running with orc is to spawn a child process 
 from your program and connect to it over the control port. This package exposes 
 a convenience method for doing this. 
 
@@ -108,7 +113,7 @@ controller.on('ready', () => {
 
 ### Control Interface
 
-You can run `storjd` standalone and control it from any other application over 
+You can run `orc` standalone and control it from any other application over 
 its TCP control interface. See the _Resources_ section below to read up on the 
 control protocol to implement it in the language of your choice. If using 
 Node.js, you can use the client bundled in this package.
@@ -159,7 +164,7 @@ Resources
 License
 -------
 
-Orc - Distributed Anonymous Storage Network  
+Orc - Onion Routed Cloud  
 Copyright (C) 2017  Gordon Hall  
 Copyright (C) 2016  Storj Labs, Inc
 
