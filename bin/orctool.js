@@ -5,7 +5,7 @@
 const pem = require('pem');
 const { utils: keyutils } = require('kad-spartacus');
 const orc = require('..');
-const options = require('./_config');
+const options = require('./config');
 const program = require('commander');
 
 
