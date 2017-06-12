@@ -1,10 +1,10 @@
-### Package Versions
+### Package Version
 
-Replace the value below using the output from `npm list storj-lib`.
+Replace the value below using the output from `orc --version`.
 
 ```
-storj-bridge@x.x.x
-└── storj-lib@x.x.x
+orc      0.0.0
+protocol 2.0.0
 ```
 
 Replace the value below using the output from `node --version`.

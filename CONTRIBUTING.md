@@ -32,6 +32,7 @@ Please take the time to review the style guide and take care to follow it.
 
 ### Project Structure
 
+* `bin/` - Command line programs and utilities
 * `doc/` - Markdown documentation on various topics not covered by JSDoc
 * `lib/` - All core classes and modules
 * `test/` - Unit and integration tests for core classes and modules

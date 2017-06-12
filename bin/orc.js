@@ -29,9 +29,8 @@ const boscar = require('boscar');
 
 
 program.version(`
-  orc       1.0.0
-  core      ${orc.version.software}
-  protocol  ${orc.version.protocol}
+  orc      ${orc.version.software}
+  protocol ${orc.version.protocol}
 `);
 
 program.description(`

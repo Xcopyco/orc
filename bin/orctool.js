@@ -10,9 +10,8 @@ const program = require('commander');
 
 
 program.version(`
-  orctool   1.0.0
-  core      ${orc.version.software}
-  protocol  ${orc.version.protocol}
+  orctool  ${orc.version.software}
+  protocol ${orc.version.protocol}
 `);
 
 program.description(`
