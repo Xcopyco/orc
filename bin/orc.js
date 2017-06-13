@@ -204,6 +204,8 @@ if (!!parseInt(config.VerboseLoggingEnabled)) {
 let retry = null;
 
 function join() {
+  let entry = null;
+
   logger.info(
     `joining network from ${config.NetworkBootstrapNodes.length} seeds`
   );
@@ -214,6 +216,7 @@ function join() {
         logger.error(`failed to identify seed ${seed} (${err.message})`);
         done(null, false);
       } else {
+        entry = contact;
         node.join(contact, (err) => done(null, !err));
       }
     });
@@ -223,8 +226,8 @@ function join() {
       retry = setTimeout(() => join(), ms('1m'));
     } else {
       logger.info(
-        `connected to network via ${result[0]} ` +
-        `(https://${result[1].hostname}:${result[1].port}})`
+        `connected to network via ${entry[0]} ` +
+        `(https://${entry[1].hostname}:${entry[1].port})`
       );
     }
   });
