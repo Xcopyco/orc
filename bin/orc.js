@@ -231,9 +231,9 @@ function join() {
 }
 
 // Bind to listening port and join the network
+logger.info('bootstrapping tor and establishing hidden service');
 node.listen(parseInt(config.ListenPort), () => {
   logger.info(`node listening on port ${config.ListenPort}`);
-  logger.info('giving tor a moment to bootstrap...');
   setTimeout(() => join(), 5000);
 });
 
