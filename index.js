@@ -86,8 +86,14 @@ module.exports.Shards = require('./lib/shards');
 /** {@link Contract} */
 module.exports.Contract = require('./lib/contract');
 
+/** {@link Bridge} */
+module.exports.Bridge = require('./lib/bridge');
+
 /** {@link module:orc/constants} */
 module.exports.constants = require('./lib/constants');
+
+/** {@link module:orc/profiles} */
+module.exports.profiles = require('./lib/profiles');
 
 /** {@link module:orc/utils} */
 module.exports.utils = require('./lib/utils');

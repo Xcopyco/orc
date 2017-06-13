@@ -132,11 +132,21 @@ NetworkBootstrapNodes[] = https://orcwfkilxjxo63mr.onion:443
 ; network. The bridge will handle encryption and erasure coding for you.
 ; Optionally, protect the local bridge access using HTTP Basic Authentication
 ; credentials defined here.
+BridgeEnabled = 0
+BridgeStorageBaseDir = /home/bookchin/.config/orc
 BridgeHostname = 127.0.0.1
 BridgePort = 4445
 BridgeAuthenticationEnabled = 0
 BridgeAuthenticationUser = orc
 BridgeAuthenticationPassword = 1b5d3daa16b3343560bcf0377547b1c0
+
+; Complete information about how orc should connect to the Zcash RPC server. 
+; Orc needs this to generate addresses for farmers, send payments from renters, 
+; check balances, etc.
+WalletHostname = localhost
+WalletPort = 8232
+WalletUser = orc
+WalletPassword = orc
 
 ; Pre-scripted profiles to enable after bootstrapping. Renter profiles listen 
 ; for capacity announcements and build a cache while exposing a bridge server 

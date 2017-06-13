@@ -45,6 +45,7 @@
     "@ronomon/reed-solomon": "^4.0.1",
     "@sindresorhus/df": "^2.1.0",
     "async": "^2.4.1",
+    "basic-auth": "^1.1.0",
     "boscar": "^1.1.1",
     "bytes": "^2.5.0",
     "commander": "^2.9.0",
@@ -69,6 +70,7 @@
     "rc": "^1.2.1",
     "secp256k1": "^3.2.2",
     "semver": "^5.1.0",
+    "tiny": "0.0.10",
     "zcash": "0.0.5"
   },
   "devDependencies": {

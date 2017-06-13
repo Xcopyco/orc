@@ -229,6 +229,21 @@ function join() {
         `connected to network via ${entry[0]} ` +
         `(https://${entry[1].hostname}:${entry[1].port})`
       );
+      profiles();
+    }
+  });
+}
+
+function profiles() {
+  if (config.ProfilesEnabled.length === 0) {
+    logger.warn('no profiles are enabled, you are only a relay');
+  }
+
+  config.ProfilesEnabled.forEach((profile) => {
+    if (!orc.profiles[profile]) {
+      logger.error(`failed to apply invalid profile "${profile}"`);
+    } else {
+      orc.profiles[profile](node);
     }
   });
 }

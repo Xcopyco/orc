@@ -102,9 +102,6 @@ You might also find yourself lacking a C++11 compiler -
 xcode-select --install
 ```
 
-Installation
-------------
-
 ### Daemon + Utilities CLI
 
 This package exposes two command line programs: `orc` and `orctool`. To 

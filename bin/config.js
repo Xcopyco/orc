@@ -57,11 +57,19 @@ module.exports = {
   OnionServicePrivateKeyPath: join(datadir, 'onion_key'),
 
   // Local Bridge
+  BridgeEnabled: '0',
+  BridgeStorageBaseDir: datadir,
   BridgeHostname: '127.0.0.1',
   BridgePort: '4445',
   BridgeAuthenticationEnabled: '0',
   BridgeAuthenticationUser: 'orc',
   BridgeAuthenticationPassword: randomBytes(16).toString('hex'),
+
+  // Wallet Connection
+  WalletHostname: 'localhost',
+  WalletPort: '8232',
+  WalletUser: 'orc',
+  WalletPassword: 'orc',
 
   // Node Profiles
   ProfilesEnabled: [] // renter, farmer, directory
