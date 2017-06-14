@@ -743,7 +743,7 @@ space are not required to perform a network walk to find the originator if it
 is not already in it's routing table. The value of this property should be:
 
 ```
-[ bytes_number, [ identity, { contact } ] ]
+[ { allocated, available }, [ identity, { contact } ] ]
 ```
 
 Long lived renter nodes, like those operated by a Bridge or other similar 
