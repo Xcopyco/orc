@@ -26,6 +26,7 @@ const { execFileSync } = require('child_process');
 const { Transform } = require('stream');
 const config = require('rc')('orc', options);
 const boscar = require('boscar');
+const kad = require('kad');
 
 
 program.version(`
@@ -47,6 +48,9 @@ function orctool() {
     [...arguments]
   ).toString().trim();
 }
+
+// Extend the Kad T_RESPONSETIMEOUT to 30s because Tor
+kad.constants.T_RESPONSETIMEOUT = ms('30s');
 
 // Generate a private extended key if it does not exist
 if (!fs.existsSync(config.PrivateExtendedKeyPath)) {
@@ -243,7 +247,7 @@ function profiles() {
     if (!orc.profiles[profile]) {
       logger.error(`failed to apply invalid profile "${profile}"`);
     } else {
-      orc.profiles[profile](node);
+      orc.profiles[profile](node, config);
     }
   });
 }

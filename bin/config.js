@@ -70,9 +70,18 @@ module.exports = {
   WalletPort: '8232',
   WalletUser: 'orc',
   WalletPassword: 'orc',
+  WalletShieldedTransactions: '0',
 
   // Node Profiles
-  ProfilesEnabled: [] // renter, farmer, directory
+  ProfilesEnabled: [], // renter, farmer, directory
+
+  // Farmer Profile
+  FarmerAdvertiseTopics: [
+    '01020202',
+    '02020202',
+    '03020202'
+  ],
+  FarmerShardReaperInterval: '24HR'
 
 };
 

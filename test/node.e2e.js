@@ -58,6 +58,7 @@ describe('@module orc (end-to-end)', function() {
     async.eachOfSeries(nodes.slice(1), (n, i, next) => {
       n.subscribeShardDescriptor(['01010202'], (err, descriptors) => {
         descriptors.on('data', ([contract, contact]) => {
+          contract = orc.Contract.from(contract);
           contract.set('farmer_id', n.identity.toString('hex'));
           contract.set('farmer_hd_key', n.contact.xpub);
           contract.set('farmer_hd_index', n.contact.index);
@@ -92,6 +93,7 @@ describe('@module orc (end-to-end)', function() {
         contract.toObject(),
         { maxOffers: 3 },
         (err, offerStream) => {
+          expect(err).to.equal(null);
           offerStream.on('data', (offer) => {
             let contract = orc.Contract.from(offer.contract);
             contract.sign('renter', renter.spartacus.privateKey);

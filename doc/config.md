@@ -147,6 +147,7 @@ WalletHostname = localhost
 WalletPort = 8232
 WalletUser = orc
 WalletPassword = orc
+WalletShieldedTransactions = 0
 
 ; Pre-scripted profiles to enable after bootstrapping. Renter profiles listen 
 ; for capacity announcements and build a cache while exposing a bridge server 
@@ -157,4 +158,16 @@ WalletPassword = orc
 ;ProfilesEnabled[] = renter
 ;ProfilesEnabled[] = farmer
 ;ProfilesEnabled[] = directory
+
+; Topic codes to use when operating under the farmer profile for subscibing to
+; contract publications and announcing capacity. See the protocol specification 
+; for more details. It is mostly reccommended to leave these at their default 
+; values.
+FarmerAdvertiseTopics[] = 01020202
+FarmerAdvertiseTopics[] = 02020202
+FarmerAdvertiseTopics[] = 03020202
+
+; How often a farmer profile should scan contract database to reap expired 
+; shards it is storing.
+FarmerShardReaperInterval = 24HR
 ```
