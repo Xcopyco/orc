@@ -170,4 +170,8 @@ FarmerAdvertiseTopics[] = 03020202
 ; How often a farmer profile should scan contract database to reap expired 
 ; shards it is storing.
 FarmerShardReaperInterval = 24HR
+
+; How often a farmer profile should publish a capacity announcement to it's
+; neighboring nodes.
+FarmerAnnounceInterval = 15M
 ```

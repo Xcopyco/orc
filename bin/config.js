@@ -81,7 +81,8 @@ module.exports = {
     '02020202',
     '03020202'
   ],
-  FarmerShardReaperInterval: '24HR'
+  FarmerShardReaperInterval: '24HR',
+  FarmerAnnounceInterval: '15M'
 
 };
 

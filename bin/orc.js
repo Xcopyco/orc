@@ -145,7 +145,13 @@ const rsa = fs.readFileSync(config.OnionServicePrivateKeyPath)
 
 // Establish onion hidden service
 node.plugin(onion({
-  rsaPrivateKey: rsa
+  rsaPrivateKey: rsa,
+  torrcEntries: {
+    CircuitBuildTimeout: 5,
+    KeepalivePeriod: 60,
+    NewCircuitPeriod: 15,
+    NumEntryGuards: 8
+  }
 }));
 
 // Intialize control server
