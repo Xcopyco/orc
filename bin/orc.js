@@ -265,7 +265,7 @@ function profiles() {
 logger.info('bootstrapping tor and establishing hidden service');
 node.listen(parseInt(config.ListenPort), () => {
   logger.info(`node listening on port ${config.ListenPort}`);
-  setTimeout(() => join(), 5000);
+  join();
 });
 
 // Establish control server and wrap node instance
