@@ -35,7 +35,7 @@ program.version(`
 `);
 
 program.description(`
-  Copyright (c) 2017 Storj Labs, Inc
+  Copyright (c) 2017 Gordon Hall
   Licensed under the GNU Affero General Public License Version 3
 `);
 
@@ -147,9 +147,9 @@ const rsa = fs.readFileSync(config.OnionServicePrivateKeyPath)
 node.plugin(onion({
   rsaPrivateKey: rsa,
   torrcEntries: {
-    CircuitBuildTimeout: 5,
+    CircuitBuildTimeout: 10,
     KeepalivePeriod: 60,
-    NewCircuitPeriod: 15,
+    NewCircuitPeriod: 60,
     NumEntryGuards: 8,
     CloseHSClientCircuitsImmediatelyOnTimeout: 1,
     MaxCircuitDirtiness: '1 hour',

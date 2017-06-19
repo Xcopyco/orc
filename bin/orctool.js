@@ -15,7 +15,7 @@ program.version(`
 `);
 
 program.description(`
-  Copyright (c) 2017 Storj Labs, Inc
+  Copyright (c) 2017 Gordon Hall
   Licensed under the GNU Affero General Public License Version 3
 `);
 
