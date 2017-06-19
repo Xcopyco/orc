@@ -7,7 +7,8 @@ Orc
 [![License](https://img.shields.io/badge/license-AGPL3.0-blue.svg?style=flat-square)](https://raw.githubusercontent.com/orcproject/orc/master/LICENSE)
 
 The **Onion Routed Cloud**. Orc is a distributed anonymous cloud storage 
-network owned and operated by _all of us_.
+network owned and operated by _all of us_. Join us in `#orcproject` at 
+[ircs://irc.oftc.net:6697](ircs://irc.oftc.net:6697)!
 
 Docker Installation
 -------------------
