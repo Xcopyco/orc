@@ -37,9 +37,9 @@ module.exports = {
 
   // Network Bootstrapping
   NetworkBootstrapNodes: [
-    'https://orcjd7xgshpovm6i.onion:443',
     'https://orcjfg52ty6ljv54.onion:443',
     'https://orce4nqoa6muz3gt.onion:443',
+    'https://orcjd7xgshpovm6i.onion:443',
     'https://orcwfkilxjxo63mr.onion:443'
   ],
 

@@ -150,7 +150,10 @@ node.plugin(onion({
     CircuitBuildTimeout: 5,
     KeepalivePeriod: 60,
     NewCircuitPeriod: 15,
-    NumEntryGuards: 8
+    NumEntryGuards: 8,
+    CloseHSClientCircuitsImmediatelyOnTimeout: 1,
+    MaxCircuitDirtiness: '1 hour',
+    PathsNeededToBuildCircuits: 0.5
   }
 }));
 
