@@ -173,5 +173,5 @@ FarmerShardReaperInterval = 24HR
 
 ; How often a farmer profile should publish a capacity announcement to it's
 ; neighboring nodes.
-FarmerAnnounceInterval = 15M
+FarmerAnnounceInterval = 1HR
 ```
