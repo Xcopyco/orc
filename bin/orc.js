@@ -75,7 +75,8 @@ if (!fs.existsSync(config.OnionServicePrivateKeyPath)) {
 
 // Initialize private extended key
 const xprivkey = fs.readFileSync(config.PrivateExtendedKeyPath).toString();
-const parentkey = hdkey.fromExtendedKey(xprivkey);
+const parentkey = hdkey.fromExtendedKey(xprivkey)
+                    .derive(orc.constants.HD_KEY_DERIVATION_PATH);
 const childkey = parentkey.deriveChild(parseInt(config.ChildDerivationIndex));
 
 // Initialize the contract storage database
@@ -135,8 +136,7 @@ const node = new orc.Node({
 
 // Handle any fatal errors
 node.on('error', (err) => {
-  logger.error(err.message);
-  process.exit(1);
+  logger.error(err.message.toLowerCase());
 });
 
 const rsa = fs.readFileSync(config.OnionServicePrivateKeyPath)
@@ -149,11 +149,8 @@ node.plugin(onion({
   torrcEntries: {
     CircuitBuildTimeout: 10,
     KeepalivePeriod: 60,
-    NewCircuitPeriod: 60,
-    NumEntryGuards: 8,
-    CloseHSClientCircuitsImmediatelyOnTimeout: 1,
-    MaxCircuitDirtiness: '1 hour',
-    PathsNeededToBuildCircuits: 0.5
+    NewCircuitPeriod: 30,
+    NumEntryGuards: 8
   }
 }));
 
@@ -242,6 +239,7 @@ function join() {
         `connected to network via ${entry[0]} ` +
         `(https://${entry[1].hostname}:${entry[1].port})`
       );
+      logger.info(`discovered ${node.router.size} peers from seed`);
       profiles();
     }
   });
@@ -256,6 +254,7 @@ function profiles() {
     if (!orc.profiles[profile]) {
       logger.error(`failed to apply invalid profile "${profile}"`);
     } else {
+      logger.info(`initializing ${profile} profile routines`);
       orc.profiles[profile](node, config);
     }
   });
