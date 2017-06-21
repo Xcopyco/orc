@@ -43,7 +43,7 @@ describe('@module orc (end-to-end)', function() {
         n.join([
           nodes[0].identity.toString('hex'),
           nodes[0].contact
-        ], next);
+        ], () => next());
       }
     }, () => {
       nodes.forEach((n) => {

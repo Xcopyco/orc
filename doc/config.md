@@ -127,6 +127,15 @@ NetworkBootstrapNodes[] = https://orcjfg52ty6ljv54.onion:443
 NetworkBootstrapNodes[] = https://orce4nqoa6muz3gt.onion:443
 NetworkBootstrapNodes[] = https://orcwfkilxjxo63mr.onion:443
 
+; Instruct Tor to establish new circuits by sending the NEWNYM sigal every so
+; often. This helps mitigate Tor relays in your path going down after a while.
+CircuitRefreshInterval = 10M
+
+; Instruct Tor to establish a new rendezvous point for reaching your Orc node
+; every so often. This helps mitigate Tor relays in your path going down after
+; a while.
+ServiceRefreshInterval = 35M
+
 ; When enabled via "renter" profile, bind a local bridge server that allows for
 ; GET and POST HTTP requests for uploading and downloading files from the 
 ; network. The bridge will handle encryption and erasure coding for you.

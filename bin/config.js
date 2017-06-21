@@ -43,6 +43,10 @@ module.exports = {
     'https://orcwfkilxjxo63mr.onion:443'
   ],
 
+  // Tor Behavior
+  CircuitRefreshInterval: '10m',
+  ServiceRefreshInterval: '35m',
+
   // Bandwidth Metering
   BandwidthAccountingEnabled: '0',
   BandwidthAccountingMax: '5GB',

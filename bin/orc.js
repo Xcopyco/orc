@@ -152,8 +152,8 @@ node.plugin(onion({
     NewCircuitPeriod: 60,
     NumEntryGuards: 8
   },
-  cleanCircuitInterval: ms('30m'),
-  cleanRendezvousInterval: ms('30m')
+  cleanCircuitsInterval: ms(config.CircuitRefreshInterval),
+  cleanRendezvousInterval: ms(config.ServiceRefreshInterval)
 }));
 
 // Intialize control server
