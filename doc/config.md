@@ -139,6 +139,18 @@ BridgePort = 4445
 BridgeAuthenticationEnabled = 0
 BridgeAuthenticationUser = orc
 BridgeAuthenticationPassword = 1b5d3daa16b3343560bcf0377547b1c0
+BridgeMetaStoragePath = /home/bookchin/.config/orc/objects.meta
+BridgeTempStagingBaseDir = /home/bookchin/.config/orc/__bridge.staging
+BridgeShardAuditInterval = 5DAYS
+
+; Topic codes used when running a renter profile for listening for capacity 
+; announcements from the network. See the protocol specification for more 
+; details. It is mostly reccommended to leave these at their default values.
+RenterListenTopics[] = 01020202
+RenterListenTopics[] = 02020202
+RenterListenTopics[] = 03020202
+; Path to a file for caching network capacity announcements
+RenterCapacityCachePath = /home/bookchin/.config/orc/capacity.cache
 
 ; Complete information about how orc should connect to the Zcash RPC server. 
 ; Orc needs this to generate addresses for farmers, send payments from renters, 
@@ -149,15 +161,13 @@ WalletUser = orc
 WalletPassword = orc
 WalletShieldedTransactions = 0
 
-; Pre-scripted profiles to enable after bootstrapping. Renter profiles listen 
-; for capacity announcements and build a cache while exposing a bridge server 
-; for uploading and downloading data. Farmer profiles publish capacity 
-; announcements and listen for contracts to store data. Directory profiles 
-; listen for a number of events but do not act of them, instead providing a
-; cache of network statistics.
+; Pre-scripted profiles to enable after bootstrapping. 
+; Renter profiles listen for capacity announcements and build a cache while 
+; exposing a bridge server for uploading and downloading data. 
+; Farmer profiles publish capacity announcements and listen for contracts to 
+; store data. 
 ;ProfilesEnabled[] = renter
 ;ProfilesEnabled[] = farmer
-;ProfilesEnabled[] = directory
 
 ; Topic codes to use when operating under the farmer profile for subscibing to
 ; contract publications and announcing capacity. See the protocol specification 

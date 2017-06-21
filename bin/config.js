@@ -56,6 +56,17 @@ module.exports = {
   // Onion Service
   OnionServicePrivateKeyPath: join(datadir, 'onion_key'),
 
+  // Node Profiles
+  ProfilesEnabled: [], // renter, farmer
+
+  // Renter Profile
+  RenterListenTopics: [
+    '01020202',
+    '02020202',
+    '03020202'
+  ],
+  RenterCapacityCachePath: join(datadir, 'capacity.cache'),
+
   // Local Bridge
   BridgeEnabled: '0',
   BridgeStorageBaseDir: datadir,
@@ -64,6 +75,9 @@ module.exports = {
   BridgeAuthenticationEnabled: '0',
   BridgeAuthenticationUser: 'orc',
   BridgeAuthenticationPassword: randomBytes(16).toString('hex'),
+  BridgeMetaStoragePath: join(datadir, 'objects.meta'),
+  BridgeTempStagingBaseDir: join(datadir, '__bridge.staging'),
+  BridgeShardAuditInterval: '5DAYS',
 
   // Wallet Connection
   WalletHostname: 'localhost',
@@ -71,9 +85,6 @@ module.exports = {
   WalletUser: 'orc',
   WalletPassword: 'orc',
   WalletShieldedTransactions: '0',
-
-  // Node Profiles
-  ProfilesEnabled: [], // renter, farmer, directory
 
   // Farmer Profile
   FarmerAdvertiseTopics: [

@@ -149,9 +149,11 @@ node.plugin(onion({
   torrcEntries: {
     CircuitBuildTimeout: 10,
     KeepalivePeriod: 60,
-    NewCircuitPeriod: 30,
+    NewCircuitPeriod: 60,
     NumEntryGuards: 8
-  }
+  },
+  cleanCircuitInterval: ms('30m'),
+  cleanRendezvousInterval: ms('30m')
 }));
 
 // Intialize control server
