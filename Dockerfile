@@ -1,7 +1,7 @@
 FROM debian:sid
 LABEL maintainer "gordonh@member.fsf.org"
 RUN apt-get update
-RUN apt-get upgrade
+RUN apt-get -y upgrade
 RUN apt-get -y install wget apt-transport-https gnupg
 RUN wget -qO - https://apt.z.cash/zcash.asc | apt-key add -
 RUN wget -qO - https://deb.nodesource.com/setup_6.x | bash -
