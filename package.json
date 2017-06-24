@@ -57,7 +57,7 @@
     "kad": "^2.3.2",
     "kad-hibernate": "^1.0.0",
     "kad-onion": "^1.5.1",
-    "kad-quasar": "^2.0.3",
+    "kad-quasar": "^2.1.0",
     "kad-spartacus": "^2.2.1",
     "kad-traverse": "^1.1.1",
     "leveldown": "^1.7.1",
