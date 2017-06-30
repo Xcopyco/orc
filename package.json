@@ -46,6 +46,7 @@
     "async": "^2.4.1",
     "basic-auth": "^1.1.0",
     "boscar": "^1.1.1",
+    "busboy": "^0.2.14",
     "bytes": "^2.5.0",
     "commander": "^2.9.0",
     "concat-stream": "^1.6.0",
