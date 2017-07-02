@@ -4,7 +4,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width">
-	<title>ORC Classes</title>
+	<title>ORC Class: FarmerProfile</title>
 
 	<!--[if lt IE 9]>
 	<script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
@@ -85,14 +85,19 @@
 		<div id="main">
 			
 
-	<h1 class="page-title">Classes</h1>
+	<h1 class="page-title">Class: FarmerProfile</h1>
 <section>
 
 <header>
     
         <h2>
+            <span class="ancestors"><a href="module-orc_profiles.html">orc/profiles</a>~</span>
         
+        FarmerProfile
         </h2>
+        
+            <div class="class-description">Applies the farmer profile to the supplied node. A farmer publishes capacity
+announcements, subscribes to contract publications, and reaps stale shards.</div>
         
     
 </header>
@@ -102,8 +107,98 @@
     <div class="container-overview">
     
         
+<hr>
+<dt>
+    <h4 class="name" id="FarmerProfile"><span class="type-signature"></span>new FarmerProfile(node, config)</h4>
+    
+    
+</dt>
+<dd>
+
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
 
         
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>node</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="Node.html">Node</a></span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>config</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">object</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
 <dl class="details">
     
 
@@ -134,6 +229,15 @@
 
 
 	
+	<dt class="tag-source method-doc-label method-doc-details-label">Source:</dt>
+	<dd class="tag-source">
+		<ul class="dummy">
+			<li>
+				<a href="lib_profiles.js.html">lib/profiles.js</a>
+			</li>
+		</ul>
+	</dd>
+	
 
 	
 
@@ -143,7 +247,21 @@
 </dl>
 
 
-        
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
     
     </div>
 
@@ -152,68 +270,21 @@
     
 
     
-        <h3 class="subsection-title">Classes</h3>
+
+    
+
+    
+
+    
+
+    
+        <h3 class="subsection-title">Methods</h3>
 
         <dl>
-            <dt><a href="Audit.html">Audit</a></dt>
-            <dd></dd>
-        
-            <dt><a href="Bridge.html">Bridge</a></dt>
-            <dd></dd>
-        
-            <dt><a href="Contract.html">Contract</a></dt>
-            <dd></dd>
-        
-            <dt><a href="module-orc_profiles-FarmerProfile.html">FarmerProfile</a></dt>
-            <dd></dd>
-        
-            <dt><a href="module-orc_profiles-Profile.html">Profile</a></dt>
-            <dd></dd>
-        
-            <dt><a href="module-orc_profiles-RenterProfile.html">RenterProfile</a></dt>
-            <dd></dd>
-        
-            <dt><a href="Node.html">Node</a></dt>
-            <dd></dd>
-        
-            <dt><a href="Offers.html">Offers</a></dt>
-            <dd></dd>
-        
-            <dt><a href="Proof.html">Proof</a></dt>
-            <dd></dd>
-        
-            <dt><a href="Rules.html">Rules</a></dt>
-            <dd></dd>
-        
-            <dt><a href="Server.html">Server</a></dt>
-            <dd></dd>
-        
-            <dt><a href="Shards.html">Shards</a></dt>
-            <dd></dd>
-        
-            <dt><a href="Transport.html">Transport</a></dt>
-            <dd></dd>
-        </dl>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-        <h3 class="subsection-title">Events</h3>
-
-        <dl>
             
 <hr>
 <dt>
-    <h4 class="name" id="event:data">data</h4>
+    <h4 class="name" id="announceCapacity"><span class="type-signature"></span>announceCapacity(callback)</h4>
     
     
 </dt>
@@ -221,7 +292,7 @@
 
     
     <div class="description">
-        Triggered when an offer is received
+        Announces current storage capacity to neighbors
     </div>
     
 
@@ -256,448 +327,13 @@
 
         <tr>
             
-                <td class="name"><code>data</code></td>
+                <td class="name"><code>callback</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">Object</span>
-
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">
-                <h6 class="method-params-label method-subparams-label">Properties</h6>
-                
-
-<table class="params table table-striped">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>contact</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Contact</span>
-
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">The sending farmer for the offer</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>contract</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type"><a href="Contract.html">Contract</a></span>
-
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">The received offer contract</td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-            </td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-    
-
-    
-<dl class="details">
-    
-
-	
-
-	
-
-	
-
-    
-
-    
-
-    
-
-    
-
-	
-
-	
-
-	
-
-	
-
-	
-
-
-
-	
-	<dt class="tag-source method-doc-label method-doc-details-label">Source:</dt>
-	<dd class="tag-source">
-		<ul class="dummy">
-			<li>
-				<a href="lib_offers.js.html">lib/offers.js</a>
-			</li>
-		</ul>
-	</dd>
-	
-
-	
-
-	
-
-	
-</dl>
-
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dd>
-
-        
-            
-<hr>
-<dt>
-    <h4 class="name" id="event:end">end</h4>
-    
-    
-</dt>
-<dd>
-
-    
-    <div class="description">
-        Triggered when the maximum number of offers are received and processed
-    </div>
-    
-
-    
-
-    
-
-    
-    
-
-    
-<dl class="details">
-    
-
-	
-
-	
-
-	
-
-    
-
-    
-
-    
-
-    
-
-	
-
-	
-
-	
-
-	
-
-	
-
-
-
-	
-	<dt class="tag-source method-doc-label method-doc-details-label">Source:</dt>
-	<dd class="tag-source">
-		<ul class="dummy">
-			<li>
-				<a href="lib_offers.js.html">lib/offers.js</a>
-			</li>
-		</ul>
-	</dd>
-	
-
-	
-
-	
-
-	
-</dl>
-
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dd>
-
-        
-            
-<hr>
-<dt>
-    <h4 class="name" id="event:error">error</h4>
-    
-    
-</dt>
-<dd>
-
-    
-    <div class="description">
-        Triggered if an error occurs
-    </div>
-    
-
-    
-
-    
-
-    
-    
-        <h5>Parameters:</h5>
-        
-
-<table class="params table table-striped">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>error</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Error</span>
-
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">The error object with message</td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-    
-
-    
-<dl class="details">
-    
-
-	
-
-	
-
-	
-
-    
-
-    
-
-    
-
-    
-
-	
-
-	
-
-	
-
-	
-
-	
-
-
-
-	
-	<dt class="tag-source method-doc-label method-doc-details-label">Source:</dt>
-	<dd class="tag-source">
-		<ul class="dummy">
-			<li>
-				<a href="lib_offers.js.html">lib/offers.js</a>
-			</li>
-		</ul>
-	</dd>
-	
-
-	
-
-	
-
-	
-</dl>
-
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dd>
-
-        
-            
-<hr>
-<dt>
-    <h4 class="name" id="event:error">error</h4>
-    
-    
-</dt>
-<dd>
-
-    
-    <div class="description">
-        Triggered when a error occurs
-    </div>
-    
-
-    
-
-    
-
-    
-    
-        <h5>Parameters:</h5>
-        
-
-<table class="params table table-striped">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>error</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">error</span>
+<span class="param-type"><a href="FarmerProfile.html#~announceCapacityCallback">FarmerProfile~announceCapacityCallback</a></span>
 
 
 
@@ -752,7 +388,7 @@
 	<dd class="tag-source">
 		<ul class="dummy">
 			<li>
-				<a href="lib_server.js.html">lib/server.js</a>
+				<a href="lib_profiles.js.html">lib/profiles.js</a>
 			</li>
 		</ul>
 	</dd>
@@ -785,7 +421,7 @@
             
 <hr>
 <dt>
-    <h4 class="name" id="event:shardDownloaded">shardDownloaded</h4>
+    <h4 class="name" id="reapExpiredShards"><span class="type-signature"></span>reapExpiredShards(callback)</h4>
     
     
 </dt>
@@ -793,7 +429,7 @@
 
     
     <div class="description">
-        Triggered when a shard has finished downloading from this instance
+        Scans the contract database for expired shards and reaps them from storage
     </div>
     
 
@@ -828,311 +464,13 @@
 
         <tr>
             
-                <td class="name"><code>hash</code></td>
+                <td class="name"><code>callback</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">string</span>
-
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">The hash associated with the download</td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-    
-
-    
-<dl class="details">
-    
-
-	
-
-	
-
-	
-
-    
-
-    
-
-    
-
-    
-
-	
-
-	
-
-	
-
-	
-
-	
-
-
-
-	
-	<dt class="tag-source method-doc-label method-doc-details-label">Source:</dt>
-	<dd class="tag-source">
-		<ul class="dummy">
-			<li>
-				<a href="lib_server.js.html">lib/server.js</a>
-			</li>
-		</ul>
-	</dd>
-	
-
-	
-
-	
-
-	
-</dl>
-
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dd>
-
-        
-            
-<hr>
-<dt>
-    <h4 class="name" id="event:shardUploaded">shardUploaded</h4>
-    
-    
-</dt>
-<dd>
-
-    
-    <div class="description">
-        Triggered when a shard has finished uploading to this instance
-    </div>
-    
-
-    
-
-    
-
-    
-    
-        <h5>Parameters:</h5>
-        
-
-<table class="params table table-striped">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>hash</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">The hash associated with the upload</td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-    
-
-    
-<dl class="details">
-    
-
-	
-
-	
-
-	
-
-    
-
-    
-
-    
-
-    
-
-	
-
-	
-
-	
-
-	
-
-	
-
-
-
-	
-	<dt class="tag-source method-doc-label method-doc-details-label">Source:</dt>
-	<dd class="tag-source">
-		<ul class="dummy">
-			<li>
-				<a href="lib_server.js.html">lib/server.js</a>
-			</li>
-		</ul>
-	</dd>
-	
-
-	
-
-	
-
-	
-</dl>
-
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dd>
-
-        
-            
-<hr>
-<dt>
-    <h4 class="name" id="event:download">download</h4>
-    
-    
-</dt>
-<dd>
-
-    
-    <div class="description">
-        Emitted when a download request is received
-    </div>
-    
-
-    
-
-    
-
-    
-    
-        <h5>Parameters:</h5>
-        
-
-<table class="params table table-striped">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>request</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">object</span>
-
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>response</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">object</span>
+<span class="param-type"><a href="FarmerProfile.html#~reapExpiredShardsCallback">FarmerProfile~reapExpiredShardsCallback</a></span>
 
 
 
@@ -1187,168 +525,7 @@
 	<dd class="tag-source">
 		<ul class="dummy">
 			<li>
-				<a href="lib_transport.js.html">lib/transport.js</a>
-			</li>
-		</ul>
-	</dd>
-	
-
-	
-
-	
-
-	
-</dl>
-
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dd>
-
-        
-            
-<hr>
-<dt>
-    <h4 class="name" id="event:upload">upload</h4>
-    
-    
-</dt>
-<dd>
-
-    
-    <div class="description">
-        Emitted when a upload request is received
-    </div>
-    
-
-    
-
-    
-
-    
-    
-        <h5>Parameters:</h5>
-        
-
-<table class="params table table-striped">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>request</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">object</span>
-
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>response</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">object</span>
-
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-    
-
-    
-<dl class="details">
-    
-
-	
-
-	
-
-	
-
-    
-
-    
-
-    
-
-    
-
-	
-
-	
-
-	
-
-	
-
-	
-
-
-
-	
-	<dt class="tag-source method-doc-label method-doc-details-label">Source:</dt>
-	<dd class="tag-source">
-		<ul class="dummy">
-			<li>
-				<a href="lib_transport.js.html">lib/transport.js</a>
+				<a href="lib_profiles.js.html">lib/profiles.js</a>
 			</li>
 		</ul>
 	</dd>
@@ -1378,6 +555,10 @@
 </dd>
 
         </dl>
+    
+
+    
+
     
 </article>
 

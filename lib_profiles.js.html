@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width">
+	<title>ORC Source: lib/profiles.js</title>
+
+	<!--[if lt IE 9]>
+	<script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+	<![endif]-->
+
+	<script src="scripts/highlight.min.js"></script>
+
+	<link type="text/css" rel="stylesheet" href="styles/site.cyborg.css">
+
+</head>
+
+<body>
+
+<div class="navbar navbar-default navbar-fixed-top ">
+<div class="container">
+	<div class="navbar-header">
+		<a class="navbar-brand" style="background-image:url()"  href="index.html">ORC</a>
+		<button class="navbar-toggle" type="button" data-toggle="collapse" data-target="#topNavigation">
+			<span class="icon-bar"></span>
+			<span class="icon-bar"></span>
+			<span class="icon-bar"></span>
+        </button>
+	</div>
+	<div class="navbar-collapse collapse" id="topNavigation">
+		<ul class="nav navbar-nav">
+			
+			<li class="dropdown">
+				<a href="modules.list.html" class="dropdown-toggle" data-toggle="dropdown">Modules<b class="caret"></b></a>
+				<ul class="dropdown-menu ">
+					<li><a href="module-orc.html">orc</a></li><li><a href="module-orc_constants.html">orc/constants</a></li><li><a href="module-orc_profiles.html">orc/profiles</a></li><li><a href="module-orc_utils.html">orc/utils</a></li><li><a href="module-orc_version.html">orc/version</a></li>
+				</ul>
+			</li>
+			
+			<li class="dropdown">
+				<a href="classes.list.html" class="dropdown-toggle" data-toggle="dropdown">Classes<b class="caret"></b></a>
+				<ul class="dropdown-menu ">
+					<li><a href="Audit.html">Audit</a></li><li><a href="Bridge.html">Bridge</a></li><li><a href="Contract.html">Contract</a></li><li><a href="module-orc_profiles-FarmerProfile.html">orc/profiles~FarmerProfile</a></li><li><a href="module-orc_profiles-Profile.html">orc/profiles~Profile</a></li><li><a href="module-orc_profiles-RenterProfile.html">orc/profiles~RenterProfile</a></li><li><a href="Node.html">Node</a></li><li><a href="Offers.html">Offers</a></li><li><a href="Proof.html">Proof</a></li><li><a href="Rules.html">Rules</a></li><li><a href="Server.html">Server</a></li><li><a href="Shards.html">Shards</a></li><li><a href="Transport.html">Transport</a></li>
+				</ul>
+			</li>
+			
+			<li class="dropdown">
+				<a href="events.list.html" class="dropdown-toggle" data-toggle="dropdown">Events<b class="caret"></b></a>
+				<ul class="dropdown-menu ">
+					<li><a href="Offers.html#event:data">Offers#event:data</a></li><li><a href="Offers.html#event:end">Offers#event:end</a></li><li><a href="Offers.html#event:error">Offers#event:error</a></li><li><a href="Server.html#event:error">Server#event:error</a></li><li><a href="Server.html#event:shardDownloaded">Server#event:shardDownloaded</a></li><li><a href="Server.html#event:shardUploaded">Server#event:shardUploaded</a></li><li><a href="Transport.html#event:download">Transport#event:download</a></li><li><a href="Transport.html#event:upload">Transport#event:upload</a></li>
+				</ul>
+			</li>
+			
+			<li class="dropdown">
+				<a href="tutorials.list.html" class="dropdown-toggle" data-toggle="dropdown">Tutorials<b class="caret"></b></a>
+				<ul class="dropdown-menu ">
+					<li><a href="tutorial-config.html">Node Configuration & Setup</a></li><li><a href="tutorial-protocol.html">Protocol Specification</a></li>
+				</ul>
+			</li>
+			
+		</ul>
+		<div class="col-sm-3 col-md-4">
+            <form class="navbar-form" role="search">
+                <div class="input-group">
+                    <input type="text" class="form-control" placeholder="Search" name="q" id="search-input">
+                    <div class="input-group-btn">
+                        <button class="btn btn-primary" id="search-submit"><i class="glyphicon glyphicon-search"></i></button>
+                    </div>
+                </div>
+            </form>
+        </div>
+	</div>
+
+</div>
+</div>
+
+
+<div class="container" id="toc-content">
+<div class="row">
+
+	
+	<div class="col-md-12">
+	
+		<div id="main">
+			
+
+		<h1 class="page-title">Source: lib/profiles.js</h1>
+    
+<section>
+    <article>
+        <pre
+            class="sunlight-highlight-javascript ">/**
+ * @module orc/profiles
+ */
+
+'use strict';
+
+const async = require('async');
+const ms = require('ms');
+const bytes = require('bytes');
+const Contract = require('./contract');
+const Audit = require('./audit');
+const Proof = require('./proof');
+const Bridge = require('./bridge');
+const constants = require('./constants');
+const utils = require('./utils');
+const Zcash = require('zcash');
+const tiny = require('tiny');
+
+
+/**
+ * Base class for a profile, sets up zcash wallet and other shared profile
+ * behavior
+ */
+class Profile {
+
+  /**
+   * @constructor
+   * @param {Node} node
+   * @param {object} config
+   */
+  constructor(node, config) {
+    this.node = node;
+    this.config = config;
+    this.wallet = this._createWallet();
+
+    this._init();
+  }
+
+  /**
+   * Generates a new zcash address
+   * @param {Profile~getNewAddressCallback} callback
+   */
+  getNewAddress(callback) {
+    if (parseInt(this.config.WalletShieldedTransactions)) {
+      this.wallet.z_getnewaddress()
+        .then((addr) => callback(null, addr), callback);
+    } else {
+      this.wallet.getnewaddress()
+        .then((addr) => callback(null, addr), callback);
+    }
+  }
+  /**
+   * @callback Profile~getNewAddressCallback
+   * @param {error|null} error
+   * @param {string} address
+   */
+
+  /**
+   * Creates a zcash wallet instance
+   * @private
+   */
+  _createWallet() {
+    return new Zcash({
+      username: this.config.WalletUser,
+      password: this.config.WalletPassword,
+      port: parseInt(this.config.WalletPort),
+      host: this.config.WalletHostname
+    });
+  }
+
+  /**
+   * Initializes the profile
+   * @private
+   */
+  _init() {}
+
+}
+
+/**
+ * Applies the farmer profile to the supplied node. A farmer publishes capacity
+ * announcements, subscribes to contract publications, and reaps stale shards.
+ */
+class FarmerProfile extends Profile {
+
+  /**
+   * @constructor
+   * @param {Node} node
+   * @param {object} config
+   */
+  constructor(node, config) {
+    super(node, config);
+  }
+
+  /**
+   * @private
+   */
+  _init() {
+    this.node.logger.info(
+      `subscribing to ${this.config.FarmerAdvertiseTopics.length} topic codes`
+    );
+    this.node.subscribeShardDescriptor(
+      this.config.FarmerAdvertiseTopics,
+      (err, rs) => {
+        if (err) {
+          this.node.logger.warn(err.message);
+        } else {
+          rs.on('data', (data) => this._handleContract(...data));
+        }
+      }
+    );
+
+    this.announceCapacity();
+
+    setInterval(() => this.announceCapacity(),
+                ms(this.config.FarmerAnnounceInterval));
+    setInterval(() => this.reapExpiredShards(),
+                ms(this.config.FarmerShardReaperInterval));
+  }
+
+  /**
+   * Handles incoming contract publications and sends storage offer
+   * @private
+   * @param {object} contract
+   * @param {array} contact
+   */
+  _handleContract(contract, contact) {
+    contract = Contract.from(contract);
+
+    this.getNewAddress((err, addr) => {
+      if (err) {
+        this.node.logger.error(err.message);
+        return this.node.logger.warn(
+          'cannot send offer for shard, failed to get new address from wallet'
+        );
+      }
+
+      contract.set('farmer_id', this.node.identity.toString('hex'));
+      contract.set('farmer_hd_key', this.node.contact.xpub);
+      contract.set('farmer_hd_index', this.node.contact.index);
+      contract.set('payment_destination', addr);
+      contract.sign('farmer', this.node.spartacus.privateKey);
+
+      contract = contract.toObject();
+
+      this.node.offerShardAllocation(contact, contract, (err) => {
+        if (err) {
+          this.node.logger.info(`offer rejected, reason: ${err.message}`);
+        } else {
+          this.node.logger.info(
+            `acquired storage contract ${contract.data_hash} ` +
+            `from renter node ${contact[0]}`
+          );
+        }
+      });
+    });
+  }
+
+  /**
+   * Announces current storage capacity to neighbors
+   * @param {FarmerProfile~announceCapacityCallback} callback
+   */
+  announceCapacity(callback = () => null) {
+    this.node.shards.size((err, data) => {
+      if (err) {
+        return this.node.logger.warn('failed to measure capacity');
+      }
+
+      async.eachSeries(this.config.FarmerAdvertiseTopics, (topic, next) => {
+        this.node.publishCapacityAnnouncement(topic, data, (err) => {
+          if (err) {
+            this.node.logger.error(err.message);
+            this.node.logger.warn('failed to publish capacity announcement');
+          } else {
+            this.node.logger.info('published capacity announcement ' +
+              `${data.available}/${data.allocated}`
+            );
+          }
+          next();
+        });
+      }, callback);
+    });
+  }
+  /**
+   * @callback FarmerProfile~announceCapacityCallback
+   * @param {error|null} error
+   */
+
+  /**
+   * Scans the contract database for expired shards and reaps them from storage
+   * @param {FarmerProfile~reapExpiredShardsCallback} callback
+   */
+  reapExpiredShards(callback = () => null) {
+    const time = Date.now();
+    const rs = this.node.contracts.createReadStream();
+
+    this.node.logger.info('starting contract database scan for stale shards');
+
+    rs.on('data', ({ key, value }) => {
+      let contract = Contract.from(value);
+
+      if (contract.get('end_time') &lt; (time + ms('24h'))) {
+        this.node.shards.unlink(contract.get('data_hash'), (err) => {
+          if (err) {
+            this.node.logger.warn(`failed to reap shard ${value.data_hash}`);
+          } else {
+            this.node.logger.info(`unlinked stale shard ${value.data_hash}`);
+            this.node.contracts.del(key, () => rs.resume());
+          }
+        });
+      } else {
+        rs.resume();
+      }
+    });
+
+    rs.on('end', () => {
+      this.node.logger.info('finished reaping stale shards');
+      callback(null);
+    });
+
+    rs.on('error', (err) => {
+      this.node.logger.error(err.message);
+      this.node.logger.warn('did not complete reaping stale shards');
+      callback(err);
+    });
+  }
+  /**
+   * @callback FarmerProfile~reapExpiredShardsCallback
+   * @param {error|null} error
+   */
+
+}
+
+/**
+ * Applies the renter profile to the supplied node. A renter listens for
+ * capacity announcements and keeps a cache, exposes a local bridge for
+ * upload/download, handles auditing, mirroring, and payments.
+ */
+class RenterProfile extends Profile {
+
+  /**
+   * @constructor
+   * @param {Node} node
+   * @param {object} config
+   */
+  constructor(node, config) {
+    super(node, config);
+    this.capacity = tiny(config.RenterCapacityCachePath);
+  }
+
+  /**
+   * Exposes the capacity cache over the control port
+   * @param {RenterProfile~getCapacityCacheCallback} callback
+   */
+  getCapacityCache(callback) {
+    this.capacity.find({})(callback);
+  }
+
+  /**
+   * @private
+   */
+  _init() {
+    this.node.logger.info('subscribing to network capacity announcements');
+    this.node.subscribeCapacityAnnouncement(
+      this.config.RenterListenTopics,
+      (err, rs) => {
+        rs.on('data', ([available, contact]) => {
+          let timestamp = Date.now();
+          this.capacity.set(contact[0], { available, contact, timestamp });
+        });
+      }
+    );
+
+    if (!parseInt(this.config.BridgeEnabled)) {
+      return;
+    }
+
+    let opts = {
+      store: this.config.BridgeMetaStoragePath,
+      stage: this.config.BridgeTempStagingBaseDir,
+      auditInterval: ms(this.config.BridgeShardAuditInterval),
+      capacityCache: this.capacity
+    };
+
+    if (parseInt(this.config.BridgeAuthenticationEnabled)) {
+      opts.auth = {
+        user: this.config.BridgeAuthenticationUser,
+        pass: this.config.BridgeAuthenticationPassword
+      };
+    }
+
+    this.bridge = new Bridge(opts);
+
+    this.node.logger.info(
+      'establishing local bridge at ' +
+      `${this.config.BridgeHostname}:${this.config.BridgePort}`
+    );
+    this.bridge.listen(parseInt(this.config.BridgePort),
+                       this.config.BridgeHostname);
+  }
+
+}
+
+/**
+ * Applies the farmer profile
+ * @function
+ * @param {Node} node
+ * @param {object} config
+ * @returns {FarmerProfile}
+ */
+module.exports.farmer = function(node, config) {
+  node.profiles = node.profiles || {};
+  node.profiles.farmer = new FarmerProfile(node, config);
+
+  return node.profiles.farmer;
+};
+
+/**
+ * Applies the renter profile
+ * @function
+ * @param {Node} node
+ * @param {object} config
+ * @returns {RenterProfile}
+ */
+module.exports.renter = function(node, config) {
+  node.profiles = node.profiles || {};
+  node.profiles.renter = new RenterProfile(node, config);
+
+  return node.profiles.renter;
+};
+</pre>
+    </article>
+</section>
+
+
+
+
+
+		</div>
+	</div>
+
+	<div class="clearfix"></div>
+
+	
+
+</div>
+</div>
+
+<div class="modal fade" id="searchResults">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">Search results</h4>
+      </div>
+      <div class="modal-body"></div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div>
+
+<footer>
+
+
+	<span class="copyright">
+	Copyright 2016 Gordon Hall
+	</span>
+
+<span class="jsdoc-message">
+	Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.3</a>
+	
+	using the <a href="https://github.com/docstrap/docstrap">DocStrap template</a>.
+</span>
+</footer>
+
+<script src="scripts/docstrap.lib.js"></script>
+<script src="scripts/toc.js"></script>
+<script type="text/javascript" src="scripts/fulltext-search-ui.js"></script>
+
+<script>
+$( function () {
+	$( "[id*='$']" ).each( function () {
+		var $this = $( this );
+
+		$this.attr( "id", $this.attr( "id" ).replace( "$", "__" ) );
+	} );
+
+	$( ".tutorial-section pre, .readme-section pre" ).each( function () {
+		var $this = $( this );
+
+		var example = $this.find( "code" );
+		exampleText = example.html();
+		var lang = /{@lang (.*?)}/.exec( exampleText );
+		if ( lang && lang[1] ) {
+			exampleText = exampleText.replace( lang[0], "" );
+			example.html( exampleText );
+			lang = lang[1];
+		} else {
+			var langClassMatch = example.parent()[0].className.match(/lang\-(\S+)/);
+			lang = langClassMatch ? langClassMatch[1] : "javascript";
+		}
+
+		if ( lang ) {
+
+			$this
+			.addClass( lang )
+			.addClass( "linenums" )
+			.html( example.html() );
+
+		}
+	} );
+
+	$('pre').each(function(i, block) {
+		hljs.highlightBlock(block);
+	});
+
+	$.catchAnchorLinks( {
+        navbarOffset: 10
+	} );
+	$( "#toc" ).toc( {
+		anchorName  : function ( i, heading, prefix ) {
+			var id = $( heading ).attr( "id" );
+			return id && id.replace(/\~/g, '-inner-').replace(/\./g, '-static-') || ( prefix + i );
+		},
+		selectors   : "#toc-content h1,#toc-content h2,#toc-content h3,#toc-content h4",
+		showAndHide : false,
+		smoothScrolling: true
+	} );
+
+	$( "#main span[id^='toc']" ).addClass( "toc-shim" );
+	$( '.dropdown-toggle' ).dropdown();
+
+    $( "table" ).each( function () {
+      var $this = $( this );
+      $this.addClass('table');
+    } );
+
+} );
+</script>
+
+
+
+<!--Navigation and Symbol Display-->
+
+
+<!--Google Analytics-->
+
+
+<script type="text/javascript">
+	$(document).ready(function() {
+		SearcherDisplay.init();
+	});
+</script>
+
+</body>
+</html>

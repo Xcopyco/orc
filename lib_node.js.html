@@ -34,14 +34,14 @@
 			<li class="dropdown">
 				<a href="modules.list.html" class="dropdown-toggle" data-toggle="dropdown">Modules<b class="caret"></b></a>
 				<ul class="dropdown-menu ">
-					<li><a href="module-orc.html">orc</a></li><li><a href="module-orc_constants.html">orc/constants</a></li><li><a href="module-orc_utils.html">orc/utils</a></li><li><a href="module-orc_version.html">orc/version</a></li>
+					<li><a href="module-orc.html">orc</a></li><li><a href="module-orc_constants.html">orc/constants</a></li><li><a href="module-orc_profiles.html">orc/profiles</a></li><li><a href="module-orc_utils.html">orc/utils</a></li><li><a href="module-orc_version.html">orc/version</a></li>
 				</ul>
 			</li>
 			
 			<li class="dropdown">
 				<a href="classes.list.html" class="dropdown-toggle" data-toggle="dropdown">Classes<b class="caret"></b></a>
 				<ul class="dropdown-menu ">
-					<li><a href="Audit.html">Audit</a></li><li><a href="Contract.html">Contract</a></li><li><a href="Node.html">Node</a></li><li><a href="Offers.html">Offers</a></li><li><a href="Proof.html">Proof</a></li><li><a href="Rules.html">Rules</a></li><li><a href="Server.html">Server</a></li><li><a href="Shards.html">Shards</a></li><li><a href="Transport.html">Transport</a></li>
+					<li><a href="Audit.html">Audit</a></li><li><a href="Bridge.html">Bridge</a></li><li><a href="Contract.html">Contract</a></li><li><a href="module-orc_profiles-FarmerProfile.html">orc/profiles~FarmerProfile</a></li><li><a href="module-orc_profiles-Profile.html">orc/profiles~Profile</a></li><li><a href="module-orc_profiles-RenterProfile.html">orc/profiles~RenterProfile</a></li><li><a href="Node.html">Node</a></li><li><a href="Offers.html">Offers</a></li><li><a href="Proof.html">Proof</a></li><li><a href="Rules.html">Rules</a></li><li><a href="Server.html">Server</a></li><li><a href="Shards.html">Shards</a></li><li><a href="Transport.html">Transport</a></li>
 				</ul>
 			</li>
 			
@@ -160,15 +160,18 @@ class Node extends KademliaNode {
     this.claims = opts.claims;
 
     this.transport.on('identify', (req, res) => {
+      this.logger.debug('responding to peer requested identification');
       res.end(JSON.stringify([
         this.identity.toString('hex'),
         this.contact
       ]));
     });
     this.transport.on('download', (req, res) => {
+      this.logger.debug('handling shard download request');
       this.server.download(req, res)
     });
     this.transport.on('upload', (req, res) => {
+      this.logger.debug('handling shard upload request');
       this.server.upload(req, res)
     });
   }
@@ -198,10 +201,11 @@ class Node extends KademliaNode {
    * @param {Node~identifyServiceCallback} callback
    */
   identifyService(uri, callback) {
-    const req = https.request(merge(url.parse(uri), {
-      agent: this.onion.secureAgent,
+    const options = merge(url.parse(uri), {
+      agent: this.onion.createSecureAgent(),
       method: 'GET'
-    }), (res) => {
+    });
+    const req = https.request(options, (res) => {
       let body = '';
 
       res.on('error', callback);
@@ -393,7 +397,7 @@ class Node extends KademliaNode {
       descriptor = Contract.from(descriptor);
 
       if (descriptor.isValid()) {
-        descriptorStream.push([descriptor, contact]);
+        descriptorStream.push([descriptor.toObject(), contact]);
       }
     });
 

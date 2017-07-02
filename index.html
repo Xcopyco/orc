@@ -34,14 +34,14 @@
 			<li class="dropdown">
 				<a href="modules.list.html" class="dropdown-toggle" data-toggle="dropdown">Modules<b class="caret"></b></a>
 				<ul class="dropdown-menu ">
-					<li><a href="module-orc.html">orc</a></li><li><a href="module-orc_constants.html">orc/constants</a></li><li><a href="module-orc_utils.html">orc/utils</a></li><li><a href="module-orc_version.html">orc/version</a></li>
+					<li><a href="module-orc.html">orc</a></li><li><a href="module-orc_constants.html">orc/constants</a></li><li><a href="module-orc_profiles.html">orc/profiles</a></li><li><a href="module-orc_utils.html">orc/utils</a></li><li><a href="module-orc_version.html">orc/version</a></li>
 				</ul>
 			</li>
 			
 			<li class="dropdown">
 				<a href="classes.list.html" class="dropdown-toggle" data-toggle="dropdown">Classes<b class="caret"></b></a>
 				<ul class="dropdown-menu ">
-					<li><a href="Audit.html">Audit</a></li><li><a href="Contract.html">Contract</a></li><li><a href="Node.html">Node</a></li><li><a href="Offers.html">Offers</a></li><li><a href="Proof.html">Proof</a></li><li><a href="Rules.html">Rules</a></li><li><a href="Server.html">Server</a></li><li><a href="Shards.html">Shards</a></li><li><a href="Transport.html">Transport</a></li>
+					<li><a href="Audit.html">Audit</a></li><li><a href="Bridge.html">Bridge</a></li><li><a href="Contract.html">Contract</a></li><li><a href="module-orc_profiles-FarmerProfile.html">orc/profiles~FarmerProfile</a></li><li><a href="module-orc_profiles-Profile.html">orc/profiles~Profile</a></li><li><a href="module-orc_profiles-RenterProfile.html">orc/profiles~RenterProfile</a></li><li><a href="Node.html">Node</a></li><li><a href="Offers.html">Offers</a></li><li><a href="Proof.html">Proof</a></li><li><a href="Rules.html">Rules</a></li><li><a href="Server.html">Server</a></li><li><a href="Shards.html">Shards</a></li><li><a href="Transport.html">Transport</a></li>
 				</ul>
 			</li>
 			
@@ -106,12 +106,13 @@
 
 
     <section class="readme-section">
-        <article><h1>Orc</h1><p><a href="https://travis-ci.org/orcproject/orc"><img src="https://img.shields.io/travis/orcproject/orc.svg?style=flat-square" alt="Build Status"></a>
-<a href="https://coveralls.io/r/orcproject/orc"><img src="https://img.shields.io/coveralls/orcproject/orc.svg?style=flat-square" alt="Coverage Status"></a>
-<a href="https://www.npmjs.com/package/@orcproject/orc"><img src="https://img.shields.io/npm/v/@orcproject/orc.svg?style=flat-square" alt="NPM"></a>
+        <article><h1><img src="https://raw.githubusercontent.com/orcproject/brand/master/logo-full.png" alt="Orc"></h1><p><a href="https://travis-ci.org/orcproject/orc"><img src="https://img.shields.io/travis/orcproject/orc.svg?style=flat-square" alt="Build Status"></a> | 
+<a href="https://coveralls.io/r/orcproject/orc"><img src="https://img.shields.io/coveralls/orcproject/orc.svg?style=flat-square" alt="Coverage Status"></a> | 
+<a href="https://www.npmjs.com/package/@orcproject/orc"><img src="https://img.shields.io/npm/v/@orcproject/orc.svg?style=flat-square" alt="NPM"></a> | 
 <a href="https://raw.githubusercontent.com/orcproject/orc/master/LICENSE"><img src="https://img.shields.io/badge/license-AGPL3.0-blue.svg?style=flat-square" alt="License"></a></p>
 <p>The <strong>Onion Routed Cloud</strong>. Orc is a distributed anonymous cloud storage 
-network owned and operated by <em>all of us</em>.</p>
+network owned and operated by <em>all of us</em>. </p>
+<p>Join us in <code>#orcproject</code> at <a href="https://oftc.net">The Open and Free Technology Community</a>!</p>
 <h2>Docker Installation</h2><p>Pull the <a href="https://hub.docker.com/r/orcproject/orc/">image from Docker Hub</a>.</p>
 <pre class="prettyprint source"><code>docker pull orcproject/orc</code></pre><p>Create a data directory on the host.</p>
 <pre class="prettyprint source"><code>mkdir path/to/orc.data</code></pre><p>Run the Orc container and mount the data directory.</p>
@@ -144,7 +145,7 @@ install Node.js (which comes with NPM):</p>
 <pre class="prettyprint source"><code>apt install git python build-essential</code></pre><p>Red Hat / Fedora / CentOS</p>
 <pre class="prettyprint source"><code>yum groupinstall 'Development Tools'</code></pre><p>You might also find yourself lacking a C++11 compiler - 
 <a href="http://hiltmon.com/blog/2015/08/09/c-plus-plus-11-on-centos-6-dot-6/">see this</a>.</p>
-<h4>Mac OSX</h4><pre class="prettyprint source"><code>xcode-select --install</code></pre><h2>Installation</h2><h3>Daemon + Utilities CLI</h3><p>This package exposes two command line programs: <code>orc</code> and <code>orctool</code>. To 
+<h4>Mac OSX</h4><pre class="prettyprint source"><code>xcode-select --install</code></pre><h3>Daemon + Utilities CLI</h3><p>This package exposes two command line programs: <code>orc</code> and <code>orctool</code>. To 
 install these, use the <code>--global</code> flag.</p>
 <pre class="prettyprint source"><code>npm install -g @orcproject/orc</code></pre><h3>Core Library</h3><p>This package exposes a module providing a complete implementation of the 
 protocol. To use it in your project, from your project's root directory, 
@@ -194,7 +195,7 @@ library provides a very low level interface for the Orc protocol and is not
 intended for casual integration with the Orc network.</p>
 <h2>Resources</h2><ul>
 <li><a href="https://orcproject.github.io/orc/">Orc Documentation</a></li>
-<li><a href="https://raw.githubusercontent.com/orcproject/protocol/master/README.md">Orc Protocol Specification</a></li>
+<li><a href="https://github.com/orcproject/orc/blob/master/doc/protocol.md">Orc Protocol Specification</a></li>
 </ul>
 <h2>License</h2><p>Orc - Onion Routed Cloud<br>Copyright (C) 2017  Gordon Hall<br>Copyright (C) 2016  Storj Labs, Inc</p>
 <p>This program is free software: you can redistribute it and/or modify

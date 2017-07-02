@@ -34,14 +34,14 @@
 			<li class="dropdown">
 				<a href="modules.list.html" class="dropdown-toggle" data-toggle="dropdown">Modules<b class="caret"></b></a>
 				<ul class="dropdown-menu ">
-					<li><a href="module-orc.html">orc</a></li><li><a href="module-orc_constants.html">orc/constants</a></li><li><a href="module-orc_utils.html">orc/utils</a></li><li><a href="module-orc_version.html">orc/version</a></li>
+					<li><a href="module-orc.html">orc</a></li><li><a href="module-orc_constants.html">orc/constants</a></li><li><a href="module-orc_profiles.html">orc/profiles</a></li><li><a href="module-orc_utils.html">orc/utils</a></li><li><a href="module-orc_version.html">orc/version</a></li>
 				</ul>
 			</li>
 			
 			<li class="dropdown">
 				<a href="classes.list.html" class="dropdown-toggle" data-toggle="dropdown">Classes<b class="caret"></b></a>
 				<ul class="dropdown-menu ">
-					<li><a href="Audit.html">Audit</a></li><li><a href="Contract.html">Contract</a></li><li><a href="Node.html">Node</a></li><li><a href="Offers.html">Offers</a></li><li><a href="Proof.html">Proof</a></li><li><a href="Rules.html">Rules</a></li><li><a href="Server.html">Server</a></li><li><a href="Shards.html">Shards</a></li><li><a href="Transport.html">Transport</a></li>
+					<li><a href="Audit.html">Audit</a></li><li><a href="Bridge.html">Bridge</a></li><li><a href="Contract.html">Contract</a></li><li><a href="module-orc_profiles-FarmerProfile.html">orc/profiles~FarmerProfile</a></li><li><a href="module-orc_profiles-Profile.html">orc/profiles~Profile</a></li><li><a href="module-orc_profiles-RenterProfile.html">orc/profiles~RenterProfile</a></li><li><a href="Node.html">Node</a></li><li><a href="Offers.html">Offers</a></li><li><a href="Proof.html">Proof</a></li><li><a href="Rules.html">Rules</a></li><li><a href="Server.html">Server</a></li><li><a href="Shards.html">Shards</a></li><li><a href="Transport.html">Transport</a></li>
 				</ul>
 			</li>
 			
@@ -144,11 +144,6 @@ ShardStorageBaseDir = /home/bookchin/.config/orc
 ; increased later, but decreasing it will not delete existing data.
 ShardStorageMaxAllocation = 0GB
 
-; Maximum number of open file descriptors per shard bucket in shards.kfs. It's 
-; best to leave it at the default here (or not define it at all) unless you 
-; know what you are doing.
-ShardStorageMaxOpenFiles = 50
-
 ; Enables renter nodes to directly claim storage capacity based on any capacity 
 ; announcements you have made. If you are farming, set this value once for every 
 ; trusted renter public extended key from which you will accept claims or once 
@@ -211,26 +206,72 @@ NetworkBootstrapNodes[] = https://orcjfg52ty6ljv54.onion:443
 NetworkBootstrapNodes[] = https://orce4nqoa6muz3gt.onion:443
 NetworkBootstrapNodes[] = https://orcwfkilxjxo63mr.onion:443
 
+; Instruct Tor to establish new circuits by sending the NEWNYM sigal every so
+; often. This helps mitigate Tor relays in your path going down after a while.
+CircuitRefreshInterval = 10M
+
+; Instruct Tor to establish a new rendezvous point for reaching your Orc node
+; every so often. This helps mitigate Tor relays in your path going down after
+; a while.
+ServiceRefreshInterval = 35M
+
 ; When enabled via &quot;renter&quot; profile, bind a local bridge server that allows for
 ; GET and POST HTTP requests for uploading and downloading files from the 
 ; network. The bridge will handle encryption and erasure coding for you.
 ; Optionally, protect the local bridge access using HTTP Basic Authentication
 ; credentials defined here.
+BridgeEnabled = 0
+BridgeStorageBaseDir = /home/bookchin/.config/orc
 BridgeHostname = 127.0.0.1
 BridgePort = 4445
 BridgeAuthenticationEnabled = 0
 BridgeAuthenticationUser = orc
 BridgeAuthenticationPassword = 1b5d3daa16b3343560bcf0377547b1c0
+BridgeMetaStoragePath = /home/bookchin/.config/orc/objects.meta
+BridgeTempStagingBaseDir = /home/bookchin/.config/orc/__bridge.staging
+BridgeShardAuditInterval = 5DAYS
 
-; Pre-scripted profiles to enable after bootstrapping. Renter profiles listen 
-; for capacity announcements and build a cache while exposing a bridge server 
-; for uploading and downloading data. Farmer profiles publish capacity 
-; announcements and listen for contracts to store data. Directory profiles 
-; listen for a number of events but do not act of them, instead providing a
-; cache of network statistics.
+; Topic codes used when running a renter profile for listening for capacity 
+; announcements from the network. See the protocol specification for more 
+; details. It is mostly reccommended to leave these at their default values.
+RenterListenTopics[] = 01020202
+RenterListenTopics[] = 02020202
+RenterListenTopics[] = 03020202
+; Path to a file for caching network capacity announcements
+RenterCapacityCachePath = /home/bookchin/.config/orc/capacity.cache
+
+; Complete information about how orc should connect to the Zcash RPC server. 
+; Orc needs this to generate addresses for farmers, send payments from renters, 
+; check balances, etc.
+WalletHostname = localhost
+WalletPort = 8232
+WalletUser = orc
+WalletPassword = orc
+WalletShieldedTransactions = 0
+
+; Pre-scripted profiles to enable after bootstrapping. 
+; Renter profiles listen for capacity announcements and build a cache while 
+; exposing a bridge server for uploading and downloading data. 
+; Farmer profiles publish capacity announcements and listen for contracts to 
+; store data. 
 ;ProfilesEnabled[] = renter
 ;ProfilesEnabled[] = farmer
-;ProfilesEnabled[] = directory</code></pre>
+
+; Topic codes to use when operating under the farmer profile for subscibing to
+; contract publications and announcing capacity. See the protocol specification 
+; for more details. It is mostly reccommended to leave these at their default 
+; values.
+FarmerAdvertiseTopics[] = 01020202
+FarmerAdvertiseTopics[] = 02020202
+FarmerAdvertiseTopics[] = 03020202
+
+; How often a farmer profile should scan contract database to reap expired 
+; shards it is storing.
+FarmerShardReaperInterval = 24HR
+
+; How often a farmer profile should publish a capacity announcement to it's
+; neighboring nodes.
+FarmerAnnounceInterval = 1HR</code></pre>
 </article>
 
 </section>

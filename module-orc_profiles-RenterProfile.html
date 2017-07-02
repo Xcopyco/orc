@@ -4,7 +4,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width">
-	<title>ORC Source: lib/offers.js</title>
+	<title>ORC Class: RenterProfile</title>
 
 	<!--[if lt IE 9]>
 	<script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
@@ -80,142 +80,353 @@
 <div class="row">
 
 	
-	<div class="col-md-12">
+	<div class="col-md-8">
 	
 		<div id="main">
 			
 
-		<h1 class="page-title">Source: lib/offers.js</h1>
-    
+	<h1 class="page-title">Class: RenterProfile</h1>
 <section>
-    <article>
-        <pre
-            class="sunlight-highlight-javascript ">'use strict';
 
-const { Readable: ReadableStream } = require('stream');
-const merge = require('merge');
-const { v4: uuid } = require('uuid');
+<header>
+    
+        <h2>
+            <span class="ancestors"><a href="module-orc_profiles.html">orc/profiles</a>~</span>
+        
+        RenterProfile
+        </h2>
+        
+            <div class="class-description">Applies the renter profile to the supplied node. A renter listens for
+capacity announcements and keeps a cache, exposes a local bridge for
+upload/download, handles auditing, mirroring, and payments.</div>
+        
+    
+</header>
 
 
-/**
- * Manages a stream of offers for a given storage contract publication
- */
-class Offers extends ReadableStream {
+<article>
+    <div class="container-overview">
+    
+        
+<hr>
+<dt>
+    <h4 class="name" id="RenterProfile"><span class="type-signature"></span>new RenterProfile(node, config)</h4>
+    
+    
+</dt>
+<dd>
 
-  static get DEFAULTS() {
-    return {
-      maxOffers: 12,
-      farmerBlacklist: []
-    };
-  }
+    
 
-  /**
-   * @constructor
-   * @param {Contract} contract - Storage contract published to network
-   * @param {Object} [options]
-   * @param {Number} [options.maxOffers] - Maximum number of offers to process
-   * @param {Array.&lt;String>} [options.farmerBlacklist] - Reject offers from nodeID
-   */
-  constructor(contract, options) {
-    super({ objectMode: true });
+    
 
-    this.options = merge(Offers.DEFAULTS, options);
-    this.resolvers = new Map();
+    
 
-    this._contract = contract;
-    this._queue = [];
-    this._offersQueued = 0;
-    this._offersProccessed = 0;
-    this._farmersDidOffer = [];
-    this._isDestroyed = false;
-  }
+    
+    
+        <h5>Parameters:</h5>
+        
 
-  /**
-   * Triggered when an offer is received
-   * @event Offers#data
-   * @param {Object} data
-   * @param {Contact} data.contact - The sending farmer for the offer
-   * @param {Contract} data.contract - The received offer contract
-   */
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
 
-  /**
-   * Triggered when the maximum number of offers are received and processed
-   * @event Offers#end
-   */
+        <th>Type</th>
 
-  /**
-   * Triggered if an error occurs
-   * @event Offers#error
-   * @param {Error} error - The error object with message
-   */
+        
 
-  /**
-   * Implements the underlying stream
-   * @private
-   */
-  _read() {
-    if (this._offersProccessed === this.options.maxOffers) {
-      return this.push(null);
-    }
+        
 
-    const _push = () => {
-      this._offersProccessed++;
-      this.push(this._queue.shift());
-    }
+        <th class="last">Description</th>
+    </tr>
+    </thead>
 
-    if (this._queue.length > 0) {
-      return setImmediate(_push);
-    }
+    <tbody>
+    
 
-    this.once('_offerAddedToQueue', _push);
-  }
+        <tr>
+            
+                <td class="name"><code>node</code></td>
+            
 
-  /**
-   * Adds the offer to the internal queue if there is room
-   * @param {array} contact - The sending farmer for the offer
-   * @param {object} contract - The received offer contract
-   * @param {function} callback
-   */
-  queue(contact, contract, callback) {
-    const self = this;
-    const isDestroyed = this._isDestroyed;
-    const farmerSentOffer = this._farmersDidOffer.indexOf(contact[0]) !== -1;
-    const contractIncomplete = !contract.isComplete();
-    const maxReached = this._offersQueued === this.options.maxOffers;
-    const id = uuid();
+            <td class="type">
+            
+                
+<span class="param-type"><a href="Node.html">Node</a></span>
 
-    if (isDestroyed || farmerSentOffer || contractIncomplete || maxReached) {
-      return callback(new Error('Storage offer rejected'));
-    }
 
-    this.resolvers.set(id, function() {
-      callback(...arguments);
-      self.resolvers.delete(id);
-    });
-    this._farmersDidOffer.push(contact[0]);
-    this._queue.push({ contact: contact, contract: contract.toObject(), id });
-    this._offersQueued++;
-    this.emit('_offerAddedToQueue');
-  }
 
-  /**
-   * Tears down listeners and ends the stream
-   */
-  destroy() {
-    this._queue = [];
-    this._isDestroyed = true;
+            
+            </td>
 
-    setImmediate(this.removeAllListeners.bind(this));
-    this.emit('destroy');
-  }
+            
 
-}
+            
 
-module.exports = Offers;
-</pre>
-    </article>
+            <td class="description last"></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>config</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">object</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+	<dt class="tag-source method-doc-label method-doc-details-label">Source:</dt>
+	<dd class="tag-source">
+		<ul class="dummy">
+			<li>
+				<a href="lib_profiles.js.html">lib/profiles.js</a>
+			</li>
+		</ul>
+	</dd>
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+    
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <h3 class="subsection-title">Methods</h3>
+
+        <dl>
+            
+<hr>
+<dt>
+    <h4 class="name" id="getCapacityCache"><span class="type-signature"></span>getCapacityCache(callback)</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Exposes the capacity cache over the control port
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>callback</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">RenterProfile~getCapacityCacheCallback</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+	<dt class="tag-source method-doc-label method-doc-details-label">Source:</dt>
+	<dd class="tag-source">
+		<ul class="dummy">
+			<li>
+				<a href="lib_profiles.js.html">lib/profiles.js</a>
+			</li>
+		</ul>
+	</dd>
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        </dl>
+    
+
+    
+
+    
+</article>
+
 </section>
-
 
 
 
@@ -225,6 +436,10 @@ module.exports = Offers;
 
 	<div class="clearfix"></div>
 
+	
+		<div class="col-md-3">
+			<div id="toc" class="col-md-3 hidden-xs hidden-sm hidden-md"></div>
+		</div>
 	
 
 </div>

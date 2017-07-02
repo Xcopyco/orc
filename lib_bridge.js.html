@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width">
+	<title>ORC Source: lib/bridge.js</title>
+
+	<!--[if lt IE 9]>
+	<script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+	<![endif]-->
+
+	<script src="scripts/highlight.min.js"></script>
+
+	<link type="text/css" rel="stylesheet" href="styles/site.cyborg.css">
+
+</head>
+
+<body>
+
+<div class="navbar navbar-default navbar-fixed-top ">
+<div class="container">
+	<div class="navbar-header">
+		<a class="navbar-brand" style="background-image:url()"  href="index.html">ORC</a>
+		<button class="navbar-toggle" type="button" data-toggle="collapse" data-target="#topNavigation">
+			<span class="icon-bar"></span>
+			<span class="icon-bar"></span>
+			<span class="icon-bar"></span>
+        </button>
+	</div>
+	<div class="navbar-collapse collapse" id="topNavigation">
+		<ul class="nav navbar-nav">
+			
+			<li class="dropdown">
+				<a href="modules.list.html" class="dropdown-toggle" data-toggle="dropdown">Modules<b class="caret"></b></a>
+				<ul class="dropdown-menu ">
+					<li><a href="module-orc.html">orc</a></li><li><a href="module-orc_constants.html">orc/constants</a></li><li><a href="module-orc_profiles.html">orc/profiles</a></li><li><a href="module-orc_utils.html">orc/utils</a></li><li><a href="module-orc_version.html">orc/version</a></li>
+				</ul>
+			</li>
+			
+			<li class="dropdown">
+				<a href="classes.list.html" class="dropdown-toggle" data-toggle="dropdown">Classes<b class="caret"></b></a>
+				<ul class="dropdown-menu ">
+					<li><a href="Audit.html">Audit</a></li><li><a href="Bridge.html">Bridge</a></li><li><a href="Contract.html">Contract</a></li><li><a href="module-orc_profiles-FarmerProfile.html">orc/profiles~FarmerProfile</a></li><li><a href="module-orc_profiles-Profile.html">orc/profiles~Profile</a></li><li><a href="module-orc_profiles-RenterProfile.html">orc/profiles~RenterProfile</a></li><li><a href="Node.html">Node</a></li><li><a href="Offers.html">Offers</a></li><li><a href="Proof.html">Proof</a></li><li><a href="Rules.html">Rules</a></li><li><a href="Server.html">Server</a></li><li><a href="Shards.html">Shards</a></li><li><a href="Transport.html">Transport</a></li>
+				</ul>
+			</li>
+			
+			<li class="dropdown">
+				<a href="events.list.html" class="dropdown-toggle" data-toggle="dropdown">Events<b class="caret"></b></a>
+				<ul class="dropdown-menu ">
+					<li><a href="Offers.html#event:data">Offers#event:data</a></li><li><a href="Offers.html#event:end">Offers#event:end</a></li><li><a href="Offers.html#event:error">Offers#event:error</a></li><li><a href="Server.html#event:error">Server#event:error</a></li><li><a href="Server.html#event:shardDownloaded">Server#event:shardDownloaded</a></li><li><a href="Server.html#event:shardUploaded">Server#event:shardUploaded</a></li><li><a href="Transport.html#event:download">Transport#event:download</a></li><li><a href="Transport.html#event:upload">Transport#event:upload</a></li>
+				</ul>
+			</li>
+			
+			<li class="dropdown">
+				<a href="tutorials.list.html" class="dropdown-toggle" data-toggle="dropdown">Tutorials<b class="caret"></b></a>
+				<ul class="dropdown-menu ">
+					<li><a href="tutorial-config.html">Node Configuration & Setup</a></li><li><a href="tutorial-protocol.html">Protocol Specification</a></li>
+				</ul>
+			</li>
+			
+		</ul>
+		<div class="col-sm-3 col-md-4">
+            <form class="navbar-form" role="search">
+                <div class="input-group">
+                    <input type="text" class="form-control" placeholder="Search" name="q" id="search-input">
+                    <div class="input-group-btn">
+                        <button class="btn btn-primary" id="search-submit"><i class="glyphicon glyphicon-search"></i></button>
+                    </div>
+                </div>
+            </form>
+        </div>
+	</div>
+
+</div>
+</div>
+
+
+<div class="container" id="toc-content">
+<div class="row">
+
+	
+	<div class="col-md-12">
+	
+		<div id="main">
+			
+
+		<h1 class="page-title">Source: lib/bridge.js</h1>
+    
+<section>
+    <article>
+        <pre
+            class="sunlight-highlight-javascript ">'use strict';
+
+const BusBoy = require('busboy');
+const ReedSolomon = require('@ronomon/reed-solomon');
+const Zcash = require('zcash');
+const http = require('http');
+const utils = require('./utils');
+const fs = require('fs');
+const merge = require('merge');
+const connect = require('connect');
+const auth = require('basic-auth');
+const crypto = require('crypto');
+const { tmpdir } = require('os');
+const path = require('path');
+const tiny = require('tiny');
+const mkdirp = require('mkdirp');
+const uuid = require('uuid');
+const AuditStream = require('./audit');
+const Contract = require('./contract');
+
+
+/**
+ * Represents a local HTTP(s) server that abstracts the upload and download
+ * of files away to a simple request. Files are encrypted to the given public
+ * key, split into shards for erasure codes. Prepped for distribution and
+ * queued for storing in the network. Bridge exposes a simple API for getting
+ * status of transfers and previously stored objects.
+ *
+ * GET    /       (List objects as JSON)
+ * GET    /{hash} (Download object)
+ * DELETE /{hash} (Delete object)
+ * POST   /       (Upload object - Multipart)
+ */
+class Bridge {
+
+  static get DEFAULTS() {
+    return {
+      auth: {
+        user: null,
+        pass: null
+      },
+      store: path.join(
+        tmpdir(),
+        `objects.${crypto.randomBytes(16).toString('hex')}`
+      ),
+      stage: path.join(
+        tmpdir(),
+        `staging.${crypto.randomBytes(16).toString('hex')}`
+      ),
+      capacityCache: null,
+      auditInterval: 432000000 // 5 days
+    };
+  }
+
+  /**
+   * @constructor
+   * @param {Node} node
+   */
+  constructor(node, options) {
+    this.options = merge(Bridge.DEFAULTS, options);
+    this.objects = tiny(this.options.store);
+    this.node = node;
+    this.server = http.createServer(this.createRequestHandler());
+
+    if (!fs.existsSync(this.options.stage)) {
+      mkdirp.sync(this.options.stage);
+    }
+
+    setInterval(() => this.audit(), 21600000); // 6 hours
+  }
+
+  /**
+   * Listens on the given port and hostname
+   * @param {number} port
+   * @param {string} hostname
+   * @param {function} callback
+   */
+  listen() {
+    this.server.listen(...arguments);
+  }
+
+  /**
+   * Creates request router and handler stack
+   * @returns {function}
+   */
+  createRequestHandler() {
+    const handler = connect();
+
+    handler.use(this.authenticate.bind(this));
+    handler.use('/', this.route.bind(this));
+    handler.use(this.error.bind(this));
+
+    return handler;
+  }
+
+  /**
+   * Handles request authentication if defined
+   * @param {object} request
+   * @param {object} response
+   * @param {function} next
+   */
+  authenticate(req, res, next) {
+    const { user, pass } = this.options.auth;
+    const error = new Error('Not authorized');
+
+    error.code = 401;
+
+    if (user &amp;&amp; pass) {
+      const creds = auth(req);
+
+      if (!(creds.name === user &amp;&amp; creds.pass === pass)) {
+        return next(error);
+      }
+    }
+
+    next();
+  }
+
+  /**
+   * Responds to requests with error code and message
+   * @param {error} error
+   * @param {object} request
+   * @param {object} response
+   * @param {function} next
+   */
+  error(err, req, res, next) {
+    if (!err) {
+      return next();
+    }
+
+    res.writeHead(err.code);
+    res.write(err.message);
+    res.end();
+  }
+
+  /**
+   * Handles routing requests to their appropriate handler
+   * @param {object} request
+   * @param {object} response
+   * @param {function} next
+   */
+  route(req, res, next) {
+    const { method, url } = req;
+
+    function badRequest() {
+      let error = new Error(`Cannot ${method} ${url}`);
+      error.code = 400;
+      next(error);
+    }
+
+    if (method === 'POST') {
+      if (url !== '/') {
+        badRequest();
+      } else {
+        this.upload(req, res, next);
+      }
+    } else if (method === 'GET') {
+      if (url === '/') {
+        this.list(req, res, next);
+      } else {
+        this.download(req, res, next);
+      }
+    } else if (method === 'DELETE') {
+      if (url === '/') {
+        badRequest();
+      } else {
+        this.destroy(req, res, next);
+      }
+    } else {
+      badRequest();
+    }
+  }
+
+  /**
+   * Scans the object database and returns all index entries
+   * @param {object} request
+   * @param {object} response
+   * @param {function} next
+   */
+  list(req, res, next) {
+    let written = 0;
+
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.write('[')
+
+    this.objects.each((obj) => {
+      res.write((written === 0 ? '' : ',') + JSON.stringify(obj));
+      written++;
+    });
+
+    res.write(']');
+    res.end();
+  }
+
+  /**
+   * Queues the object for upload to the network
+   * @param {object} request
+   * @param {object} response
+   * @param {function} next
+   */
+  upload(req, res, next) {
+    res.writeHead(501);
+    res.end('Not Implemented');
+
+    const busboy = new BusBoy({ headers: req.headers });
+    const objects = [];
+
+    busboy.on('file', (field, file, name, encoding, mime) => {
+      const tmp = path.join(this.options.stage, uuid.v4());
+      mkdirp.sync(tmp);
+
+      let size = 0;
+      const hash = crypto.createHash('sha256');
+      const hasher = new stream.Transform({
+        transform: (data, enc, cb) => {
+          size += data.length;
+          hash.update(data);
+          cb(null, data);
+        }
+      });
+      const writer = fs.createWriteStream(path.join(tmp, 'ciphertext'));
+      const cipher = utils.createCipher(this.node.spartacus.publicKey,
+                                        this.node.spartacus.privateKey);
+
+      file.pipe(hasher).pipe(cipher).pipe(writer).on('finish', () => {
+        const digest = hash.digest('hex');
+        const stage = path.join(this.options.stage, digest);
+        const ciphertext = path.join(stage, 'ciphertext');
+
+        fs.renameSync(tmp, stage);
+        objects.push({ hash: digest, encoding, mimetype: mime });
+        this.distribute(ciphertext, { encoding, mimetype: mime });
+        this.objects.save(digest, {
+          name,
+          encoding,
+          mimetype: mime,
+          hash: digest,
+          size,
+          status: 'queued',
+          shards: []
+        }, () => null);
+      });
+    });
+
+    busboy.on('finish', () => {
+      res.writeHead(201, { 'Content-Type': 'application/json' });
+      res.write(JSON.stringify(objects));
+      res.end();
+    });
+
+    req.pipe(busboy);
+  }
+
+  /**
+   * Takes the supplied file path and applies erasure codes, then attempts to
+   * distribute the shards across the network
+   * @param {string} filepath - Path to the file to distribute
+   * @param {object} metadata
+   * @param {string} metadata.encoding
+   * @param {string} metadata.mimetype
+   * @param {string} metadata.hash
+   * @returns {EventEmitter}
+   */
+  distribute(filepath, metadata) {
+    const stat = fs.statSync(filepath);
+    const rsparams = utils.getErasureParameters(stat.size);
+    const rs = new ReedSolomon(rsparams.shards, rsparams.parity);
+
+    function encodeErasure(callback) {
+      fs.readFile(filepath, (err, file) => {
+        if (err) {
+          return callback(err);
+        }
+
+        let parity = [];
+        let { size } = rsparams;
+
+        for (let i = 0; i &lt; rsparams.parity; i++) {
+          parity.push(new Buffer(rsparams.size));
+        }
+
+        file = Buffer.concat([file, Buffer.concat(parity)]);
+        rs.encode(file, 0, file.length, size, 0, size, (err) => {
+          if (err) {
+            return callback(err);
+          }
+
+          this.objects.get(metadata.hash, (err, object) => {
+            if (err) {
+              return callback(err);
+            } else {
+              callback(null, file, rsparams, object);
+            }
+          });
+        });
+      });
+    }
+
+    function prepareShards(file, rsparams, object, callback) {
+      let time = Date.now();
+      let shards = [];
+      let position = 0;
+
+      function prepareContracts() {
+        async.eachSeries(shards, (shard, next) => {
+          const audit = new AuditStream(3); // TODO: Configurable
+          const stream = fs.createReadStream(shard.path);
+          const hash = crypto.createHash('sha256');
+          const hasher = new stream.Transform({
+            transform: (data, enc, cb) => {
+              hash.update(data);
+              cb(null, data);
+            }
+          });
+
+          stream.pipe(hasher).pipe(audit).on('finish', () => {
+            shard._audits = audit.getPrivateRecord();
+            shard._proposal = Contract.from({
+              data_hash: utils.rmd160(hash.digest()).toString('hex'),
+              data_size: rsparams.size,
+              audit_count: 3, // TODO: Configurable
+              audit_leaves: audit.getPublicRecord(),
+              payment_storage_price: 0, // TODO: Configurable
+              payment_download_price: 0, // TODO: Configurable
+              store_begin: time,
+              store_end: time + ms('90d'), // TODO: Configurable
+              renter_hd_key: this.node.contact.xpub,
+              renter_hd_index: this.node.contact.index,
+              renter_id: this.node.identity.toString('hex')
+            });
+            shard._proposal.sign('renter', this.node.spartacus.privateKey);
+            next();
+          });
+        }, () => {
+          object.shards = shards;
+          this.object.save(object.hash, object, () => callback(null, object));
+        });
+      }
+
+      async.times(rsparams.shards + rs.params.parity, (n, done) => {
+        const pad = (n) => n >= 10 ? n.toString() : `0${n}`;
+        const shardpath = path.join(path.dirname(filepath), `${pad(n)}.shard`);
+        fs.writeFile(shardpath, file.slice(position, rsparams.size), () => {
+          position += rsparams.size;
+          shards.push({ index: n, size: rsparams.size, path: shardpath });
+          done();
+        });
+      }, () => {
+        fs.unlink(filepath, () => prepareContracts());
+      });
+    }
+
+    function uploadShards(shards, object, callback) {
+      // TODO: Publish or claim a contract for each shard
+      // TODO: Upload each shard to respective farmer node
+      // TODO: Keep object pointer updated for retrieval later
+      callback(null);
+    }
+
+    async.waterfall([
+      (next) => encodeErasure(next),
+      (file, rs, obj, next) => prepareShards(file, rs, obj, next),
+      (shards, obj, next) => uploadShards(shards, obj, next)
+    ], (err) => {
+      this.node.logger.error(err.message);
+    });
+  }
+
+  /**
+   * Downloads the object from the network
+   * @param {object} request
+   * @param {object} response
+   * @param {function} next
+   */
+  download(req, res, next) {
+    res.writeHead(501);
+    res.end('Not Implemented');
+    // TODO: Lookup object and get shard pointers
+    // TODO: Request a download token for each shard
+    // TODO: Download each shard (minimum RS?)
+    // TODO: Respond to request with decrypted stream
+  }
+
+  /**
+   * Ends contracts with farmers for the object parts and removes
+   * reference to them
+   * @param {object} request
+   * @param {object} response
+   * @param {function} next
+   */
+  destroy(req, res, next) {
+    res.writeHead(501);
+    res.end('Not Implemented');
+    // TODO: For each shard referenced by the object
+    // TODO: Set the store_end time in the contract to now
+    // TODO: Issue a RENEW message to the associated farmer node
+    // TODO: Issue any final payment for storage
+    // TODO: Remove the object reference
+    // TODO: Respond immediately after queuing the destroy
+    // TODO: (Status can be checked with GET /)
+  }
+
+  /**
+   * Periodically call this to scan the object store for shards that need to
+   * be audited, perform audit, and issue payment
+   * @param {function} callback
+   */
+  audit(callback) {
+    callback(new Error('Auditor not implemented'));
+  }
+
+}
+
+module.exports = Bridge;
+</pre>
+    </article>
+</section>
+
+
+
+
+
+		</div>
+	</div>
+
+	<div class="clearfix"></div>
+
+	
+
+</div>
+</div>
+
+<div class="modal fade" id="searchResults">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">Search results</h4>
+      </div>
+      <div class="modal-body"></div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div>
+
+<footer>
+
+
+	<span class="copyright">
+	Copyright 2016 Gordon Hall
+	</span>
+
+<span class="jsdoc-message">
+	Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.3</a>
+	
+	using the <a href="https://github.com/docstrap/docstrap">DocStrap template</a>.
+</span>
+</footer>
+
+<script src="scripts/docstrap.lib.js"></script>
+<script src="scripts/toc.js"></script>
+<script type="text/javascript" src="scripts/fulltext-search-ui.js"></script>
+
+<script>
+$( function () {
+	$( "[id*='$']" ).each( function () {
+		var $this = $( this );
+
+		$this.attr( "id", $this.attr( "id" ).replace( "$", "__" ) );
+	} );
+
+	$( ".tutorial-section pre, .readme-section pre" ).each( function () {
+		var $this = $( this );
+
+		var example = $this.find( "code" );
+		exampleText = example.html();
+		var lang = /{@lang (.*?)}/.exec( exampleText );
+		if ( lang && lang[1] ) {
+			exampleText = exampleText.replace( lang[0], "" );
+			example.html( exampleText );
+			lang = lang[1];
+		} else {
+			var langClassMatch = example.parent()[0].className.match(/lang\-(\S+)/);
+			lang = langClassMatch ? langClassMatch[1] : "javascript";
+		}
+
+		if ( lang ) {
+
+			$this
+			.addClass( lang )
+			.addClass( "linenums" )
+			.html( example.html() );
+
+		}
+	} );
+
+	$('pre').each(function(i, block) {
+		hljs.highlightBlock(block);
+	});
+
+	$.catchAnchorLinks( {
+        navbarOffset: 10
+	} );
+	$( "#toc" ).toc( {
+		anchorName  : function ( i, heading, prefix ) {
+			var id = $( heading ).attr( "id" );
+			return id && id.replace(/\~/g, '-inner-').replace(/\./g, '-static-') || ( prefix + i );
+		},
+		selectors   : "#toc-content h1,#toc-content h2,#toc-content h3,#toc-content h4",
+		showAndHide : false,
+		smoothScrolling: true
+	} );
+
+	$( "#main span[id^='toc']" ).addClass( "toc-shim" );
+	$( '.dropdown-toggle' ).dropdown();
+
+    $( "table" ).each( function () {
+      var $this = $( this );
+      $this.addClass('table');
+    } );
+
+} );
+</script>
+
+
+
+<!--Navigation and Symbol Display-->
+
+
+<!--Google Analytics-->
+
+
+<script type="text/javascript">
+	$(document).ready(function() {
+		SearcherDisplay.init();
+	});
+</script>
+
+</body>
+</html>
