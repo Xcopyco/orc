@@ -198,7 +198,7 @@ Resources
 ---------
 
 * [Orc Documentation](https://orcproject.github.io/orc/)
-* [Orc Protocol Specification](https://raw.githubusercontent.com/orcproject/protocol/master/README.md)
+* [Orc Protocol Specification](https://github.com/orcproject/orc/blob/master/doc/protocol.md)
 
 License
 -------
