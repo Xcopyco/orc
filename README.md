@@ -1,4 +1,4 @@
-# ![Orc](https://raw.githubusercontent.com/orcproject/brand/master/logo-full.png)
+# ![Orc](https://raw.githubusercontent.com/orcproject/brand/master/logo-word-purple.png)
 
 [![Build Status](https://img.shields.io/travis/orcproject/orc.svg?style=flat-square)](https://travis-ci.org/orcproject/orc) | 
 [![Coverage Status](https://img.shields.io/coveralls/orcproject/orc.svg?style=flat-square)](https://coveralls.io/r/orcproject/orc) | 
