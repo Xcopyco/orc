@@ -1,7 +1,4 @@
 {
-  "protocol": {
-    "title": "Protocol Specification"
-  },
   "config": {
     "title": "Node Configuration & Setup"
   }
