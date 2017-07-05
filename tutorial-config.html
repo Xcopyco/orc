@@ -106,15 +106,16 @@ information. All of this data will be created and stored in
   + - config
   + - service_key.pem
   + - certificate.pem
+  + - capacity.cache
   + - /contracts.db
     + - ...
-  + - /shards.kfs
+  + - /shards
     + - ...
   + - /directory.db
     + - ...</code></pre><p>The locations of all of these files is defined in your configuration file. 
 Below is a complete sample config in INI format (though JSON is also 
 supported). Comments are inline to describe each property.</p>
-<h2>Default Configuration</h2><pre class="prettyprint source lang-ini"><code>;
+<h3>Default Configuration</h3><pre class="prettyprint source lang-ini"><code>;
 ; Orc Sample Configuration
 ;
 
