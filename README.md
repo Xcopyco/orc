@@ -3,9 +3,10 @@ anonymous cloud storage network owned and operated by _all of us_. Join
 the discussion in `#orc` on our [community chat](https://matrix.counterpointhackers.org/_matrix/client/#/room/#orc:matrix.counterpointhackers.org)!
 
 [![Build Status](https://img.shields.io/travis/orcproject/orc.svg?style=flat-square)](https://travis-ci.org/orcproject/orc) | 
-[![Coverage Status](https://img.shields.io/coveralls/orcproject/orc.svg?style=flat-square)](https://coveralls.io/r/orcproject/orc) | 
-[![NPM](https://img.shields.io/npm/v/@orcproject/orc.svg?style=flat-square)](https://www.npmjs.com/package/@orcproject/orc) | 
-[![License](https://img.shields.io/badge/license-AGPL3.0-blue.svg?style=flat-square)](https://raw.githubusercontent.com/orcproject/orc/master/LICENSE)
+[![Test Coverage](https://img.shields.io/coveralls/orcproject/orc.svg?style=flat-square)](https://coveralls.io/r/orcproject/orc) | 
+[![Node Package](https://img.shields.io/npm/v/@orcproject/orc.svg?style=flat-square)](https://www.npmjs.com/package/@orcproject/orc) | 
+[![Docker Hub](https://img.shields.io/docker/pulls/orcproject/orc.svg?style=flat-square)](https://hub.docker.com/r/orcproject/orc) | 
+[![License (AGPL-3.0)](https://img.shields.io/badge/license-AGPL3.0-blue.svg?style=flat-square)](https://raw.githubusercontent.com/orcproject/orc/master/LICENSE)
 
 ### Quick Start
 
