@@ -117,11 +117,10 @@ the discussion in <code>#orc</code> on our <a href="https://matrix.counterpointh
 <pre class="prettyprint source"><code>docker pull orcproject/orc</code></pre><p>Create a data directory on the host.</p>
 <pre class="prettyprint source"><code>mkdir path/to/orc.data</code></pre><p>Run the ORC container and mount the data directory.</p>
 <pre class="prettyprint source"><code>docker run -v path/to/orc.data:/root/.config/orc -t orcproject/orc:latest</code></pre><p>Modify the created configuration at <code>path/to/orc.data/config</code> as desired (see 
-<a href="https://github.com/orcproject/orc/blob/master/doc/config.md">the configuration docs</a>)
-and restart the container for the changes to take effect. You might wish to 
-expose the ports defined for <code>ControlPort</code> and <code>BridgePort</code> to the host (and 
-update <code>ControlHostname</code> and <code>BridgeHostname</code> to <code>0.0.0.0</code>) and map them to the 
-host.</p>
+the <a href="tutorial-config.html">Configuration Guide</a>) and restart the container for the changes to take 
+effect. You might wish to expose the ports defined for <code>ControlPort</code> and 
+<code>BridgePort</code> to the host (and update <code>ControlHostname</code> and <code>BridgeHostname</code> to 
+<code>0.0.0.0</code>) and map them to the host.</p>
 <pre class="prettyprint source"><code>docker run \
   --publish 127.0.0.1:4444:4444 \
   --publish 127.0.0.1:4445:4445 \
@@ -131,8 +130,7 @@ host.</p>
   --tty orcproject/orc:latest</code></pre><p>See the <a href="https://docs.docker.com/engine/reference/commandline/run/"><code>docker run</code> documentation</a> 
 for more information. If you prefer to install ORC manually, see the guide for 
 <a href="tutorial-install.html">Manual Installation</a>. Once installed, simply run <code>orc</code> with an optional 
-configuration file using the <code>--config &lt;path/to/config&gt;</code> option. See the 
-<a href="tutorial-config.html">Configuration Guide</a> for details on the format and accepted properties.</p>
+configuration file using the <code>--config &lt;path/to/config&gt;</code> option.</p>
 <h3>Resources</h3><ul>
 <li><a href="https://orcproject.github.io/orc/">Documentation</a></li>
 <li><a href="https://raw.githubusercontent.com/orcproject/whitepaper/master/protocol.pdf">Specification</a></li>
