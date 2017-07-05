@@ -19,9 +19,10 @@ information. All of this data will be created and stored in
   + - config
   + - service_key.pem
   + - certificate.pem
+  + - capacity.cache
   + - /contracts.db
     + - ...
-  + - /shards.kfs
+  + - /shards
     + - ...
   + - /directory.db
     + - ...
@@ -31,8 +32,7 @@ The locations of all of these files is defined in your configuration file.
 Below is a complete sample config in INI format (though JSON is also 
 supported). Comments are inline to describe each property.
 
-Default Configuration
----------------------
+### Default Configuration
 
 ```ini
 ;
