@@ -1,17 +1,13 @@
-# ![Orc](https://raw.githubusercontent.com/orcproject/brand/master/logo-word-purple.png)
+The [**Onion Routed Cloud**](https://orc.network). ORC is a distributed 
+anonymous cloud storage network owned and operated by _all of us_. Join 
+the discussion in `#orc` on our [community chat](https://matrix.counterpointhackers.org/_matrix/client/#/room/#orc:matrix.counterpointhackers.org)!
 
 [![Build Status](https://img.shields.io/travis/orcproject/orc.svg?style=flat-square)](https://travis-ci.org/orcproject/orc) | 
 [![Coverage Status](https://img.shields.io/coveralls/orcproject/orc.svg?style=flat-square)](https://coveralls.io/r/orcproject/orc) | 
 [![NPM](https://img.shields.io/npm/v/@orcproject/orc.svg?style=flat-square)](https://www.npmjs.com/package/@orcproject/orc) | 
 [![License](https://img.shields.io/badge/license-AGPL3.0-blue.svg?style=flat-square)](https://raw.githubusercontent.com/orcproject/orc/master/LICENSE)
 
-The **Onion Routed Cloud**. Orc is a distributed anonymous cloud storage 
-network owned and operated by _all of us_. 
-
-Join us in `#orcproject` at [The Open and Free Technology Community](https://oftc.net)!
-
-Docker Installation
--------------------
+### Quick Start
 
 Pull the [image from Docker Hub](https://hub.docker.com/r/orcproject/orc/).
 
@@ -25,7 +21,7 @@ Create a data directory on the host.
 mkdir path/to/orc.data
 ```
 
-Run the Orc container and mount the data directory.
+Run the ORC container and mount the data directory.
 
 ```
 docker run -v path/to/orc.data:/root/.config/orc -t orcproject/orc:latest
@@ -49,161 +45,20 @@ docker run \
 ```
 
 See the [`docker run` documentation](https://docs.docker.com/engine/reference/commandline/run/) 
-for more information.
+for more information. If you prefer to install ORC manually, see the guide for 
+{@tutorial install}. Once installed, simply run `orc` with an optional 
+configuration file using the `--config <path/to/config>` option. See the 
+{@tutorial config} for details on the format and accepted properties.
 
-Manual Installation
--------------------
+### Resources
 
-Make sure you have the following prerequisites installed:
+* [Documentation](https://orcproject.github.io/orc/)
+* [Specification](https://raw.githubusercontent.com/orcproject/whitepaper/master/protocol.pdf)
+* [Whitepaper](https://raw.githubusercontent.com/orcproject/whitepaper/master/whitepaper.pdf)
 
-* [Zcash](https://z.cash)
-* [Tor](https://torproject.org)
-* [Git](https://git-scm.org)
-* [Node.js LTS + NPM (6.10.x)](https://nodejs.org)
-* Python 2.7
-* GCC/G++/Make
+### License
 
-### Node.js + NPM
-
-#### GNU+Linux & Mac OSX
-
-```
-wget -qO- https://raw.githubusercontent.com/creationix/nvm/v0.33.0/install.sh | bash
-```
-
-Close your shell and open an new one. Now that you can call the `nvm` program,
-install Node.js (which comes with NPM):
-
-```
-nvm install --lts
-```
-
-### Build Dependencies
-
-#### GNU+Linux
-
-Debian / Ubuntu / Mint / Trisquel / and Friends
-
-```
-apt install git python build-essential
-```
-
-Red Hat / Fedora / CentOS
-
-```
-yum groupinstall 'Development Tools'
-```
-
-You might also find yourself lacking a C++11 compiler - 
-[see this](http://hiltmon.com/blog/2015/08/09/c-plus-plus-11-on-centos-6-dot-6/).
-
-#### Mac OSX
-
-```
-xcode-select --install
-```
-
-### Daemon + Utilities CLI
-
-This package exposes two command line programs: `orc` and `orctool`. To 
-install these, use the `--global` flag.
-
-```
-npm install -g @orcproject/orc
-```
-
-### Core Library
-
-This package exposes a module providing a complete implementation of the 
-protocol. To use it in your project, from your project's root directory, 
-install as a dependency.
-
-```
-npm install @orcproject/orc --save
-```
-
-Usage
------
-
-### Command Line
-
-Simply run `orc` with an optional [configuration file](https://github.com/orcproject/orc/blob/master/doc/config.md) 
-using the `--config <path/to/config>` option.
-
-### Spawning Child
-
-The easiest way to get up and running with orc is to spawn a child process 
-from your program and connect to it over the control port. This package exposes 
-a convenience method for doing this. 
-
-```js
-const orc = require('@orcproject/orc');
-const { child, controller } = orc(config);
-
-// The `config` argument can be either a string path to config file to use or 
-// a JSON dictionary of config properties. See configuration documentaion.
-
-child.stdout.pipe(process.stdout); // Pipe log out put to stdout
-
-controller.on('ready', () => {
-  controller.invoke('ping', [contact], console.log); // Ping a contact
-});
-```
-
-### Control Interface
-
-You can run `orc` standalone and control it from any other application over 
-its TCP control interface. See the _Resources_ section below to read up on the 
-control protocol to implement it in the language of your choice. If using 
-Node.js, you can use the client bundled in this package.
-
-```js
-const orc = require('@orcproject/orc');
-const controller = new orc.control.Client();
-
-controller.on('ready', () => {
-  controller.invoke('ping', [contact], (err) => { /* handle result */ });
-});
-
-controller.connect(port);
-```
-
-If you wish to control your `orc` node from another language, simply connect 
-to the control port over a TCP socket and use the 
-[BOSCAR](https://github.com/bookchin/boscar) protocol to send RPC messages to 
-the node. The methods and argument signatures map directly to the `orc.Node` 
-API describe in the documentation. See *Resources* below.
-
-### Direct Implementation
-
-Since `orc` exposes all of the internals used to implement it, you can use 
-the same classes to directly implement your own Orc node within your project.
-Just import the package and construct a node instance with options.
-
-```js
-const orc = require('@orcproject/orc');
-const node = new orc.Node(options);
-
-node.listen(8443);
-node.join(['known_node_id', { /* contact data */ }]);
-```
-
-Consult the documentation for a complete reference of the API exposed from the 
-`Node` object. Further documentation on usage can be found by reviewing the 
-end-to-end test suite in `test/node.e2e.js`. Note that using this package as a 
-library provides a very low level interface for the Orc protocol and is not 
-intended for casual integration with the Orc network.
-
-Resources
----------
-
-* [Orc Documentation](https://orcproject.github.io/orc/)
-* [Orc Protocol Specification](https://github.com/orcproject/whitepaper/blob/master/doc/protocol.md)
-
-License
--------
-
-Orc - Onion Routed Cloud  
+ORC - Distributed Anonymous Cloud  
 Copyright (C) 2017  Gordon Hall  
 Copyright (C) 2016  Storj Labs, Inc
 

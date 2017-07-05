@@ -1,5 +1,11 @@
 {
   "config": {
-    "title": "Node Configuration & Setup"
+    "title": "Configuration Guide"
+  },
+  "install": {
+    "title": "Manual Installation"
+  },
+  "usage": {
+    "title": "Basic Usage Guide"
   }
 }
