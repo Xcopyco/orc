@@ -28,11 +28,10 @@ docker run -v path/to/orc.data:/root/.config/orc -t orcproject/orc:latest
 ```
 
 Modify the created configuration at `path/to/orc.data/config` as desired (see 
-[the configuration docs](https://github.com/orcproject/orc/blob/master/doc/config.md))
-and restart the container for the changes to take effect. You might wish to 
-expose the ports defined for `ControlPort` and `BridgePort` to the host (and 
-update `ControlHostname` and `BridgeHostname` to `0.0.0.0`) and map them to the 
-host.
+the {@tutorial config}) and restart the container for the changes to take 
+effect. You might wish to expose the ports defined for `ControlPort` and 
+`BridgePort` to the host (and update `ControlHostname` and `BridgeHostname` to 
+`0.0.0.0`) and map them to the host.
 
 ```
 docker run \
@@ -47,8 +46,7 @@ docker run \
 See the [`docker run` documentation](https://docs.docker.com/engine/reference/commandline/run/) 
 for more information. If you prefer to install ORC manually, see the guide for 
 {@tutorial install}. Once installed, simply run `orc` with an optional 
-configuration file using the `--config <path/to/config>` option. See the 
-{@tutorial config} for details on the format and accepted properties.
+configuration file using the `--config <path/to/config>` option.
 
 ### Resources
 
