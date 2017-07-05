@@ -12,7 +12,7 @@
 
 	<script src="scripts/highlight.min.js"></script>
 
-	<link type="text/css" rel="stylesheet" href="styles/site.cyborg.css">
+	<link type="text/css" rel="stylesheet" href="styles/site.granax.css">
 
 </head>
 
@@ -21,7 +21,7 @@
 <div class="navbar navbar-default navbar-fixed-top ">
 <div class="container">
 	<div class="navbar-header">
-		<a class="navbar-brand" style="background-image:url()"  href="index.html">ORC</a>
+		<a class="navbar-brand" style="background-image:url(img/orc.png)"  href="index.html">ORC</a>
 		<button class="navbar-toggle" type="button" data-toggle="collapse" data-target="#topNavigation">
 			<span class="icon-bar"></span>
 			<span class="icon-bar"></span>
@@ -55,7 +55,7 @@
 			<li class="dropdown">
 				<a href="tutorials.list.html" class="dropdown-toggle" data-toggle="dropdown">Tutorials<b class="caret"></b></a>
 				<ul class="dropdown-menu ">
-					<li><a href="tutorial-config.html">Node Configuration & Setup</a></li><li><a href="tutorial-protocol.html">Protocol Specification</a></li>
+					<li><a href="tutorial-config.html">Configuration Guide</a></li><li><a href="tutorial-install.html">Manual Installation</a></li><li><a href="tutorial-usage.html">Basic Usage Guide</a></li>
 				</ul>
 			</li>
 			
@@ -106,16 +106,16 @@
 
 
     <section class="readme-section">
-        <article><h1><img src="https://raw.githubusercontent.com/orcproject/brand/master/logo-full.png" alt="Orc"></h1><p><a href="https://travis-ci.org/orcproject/orc"><img src="https://img.shields.io/travis/orcproject/orc.svg?style=flat-square" alt="Build Status"></a> | 
+        <article><p>The <a href="https://orc.network"><strong>Onion Routed Cloud</strong></a>. ORC is a distributed 
+anonymous cloud storage network owned and operated by <em>all of us</em>. Join 
+the discussion in <code>#orc</code> on our <a href="https://matrix.counterpointhackers.org/_matrix/client/#/room/#orc:matrix.counterpointhackers.org">community chat</a>!</p>
+<p><a href="https://travis-ci.org/orcproject/orc"><img src="https://img.shields.io/travis/orcproject/orc.svg?style=flat-square" alt="Build Status"></a> | 
 <a href="https://coveralls.io/r/orcproject/orc"><img src="https://img.shields.io/coveralls/orcproject/orc.svg?style=flat-square" alt="Coverage Status"></a> | 
 <a href="https://www.npmjs.com/package/@orcproject/orc"><img src="https://img.shields.io/npm/v/@orcproject/orc.svg?style=flat-square" alt="NPM"></a> | 
 <a href="https://raw.githubusercontent.com/orcproject/orc/master/LICENSE"><img src="https://img.shields.io/badge/license-AGPL3.0-blue.svg?style=flat-square" alt="License"></a></p>
-<p>The <strong>Onion Routed Cloud</strong>. Orc is a distributed anonymous cloud storage 
-network owned and operated by <em>all of us</em>. </p>
-<p>Join us in <code>#orcproject</code> at <a href="https://oftc.net">The Open and Free Technology Community</a>!</p>
-<h2>Docker Installation</h2><p>Pull the <a href="https://hub.docker.com/r/orcproject/orc/">image from Docker Hub</a>.</p>
+<h3>Quick Start</h3><p>Pull the <a href="https://hub.docker.com/r/orcproject/orc/">image from Docker Hub</a>.</p>
 <pre class="prettyprint source"><code>docker pull orcproject/orc</code></pre><p>Create a data directory on the host.</p>
-<pre class="prettyprint source"><code>mkdir path/to/orc.data</code></pre><p>Run the Orc container and mount the data directory.</p>
+<pre class="prettyprint source"><code>mkdir path/to/orc.data</code></pre><p>Run the ORC container and mount the data directory.</p>
 <pre class="prettyprint source"><code>docker run -v path/to/orc.data:/root/.config/orc -t orcproject/orc:latest</code></pre><p>Modify the created configuration at <code>path/to/orc.data/config</code> as desired (see 
 <a href="https://github.com/orcproject/orc/blob/master/doc/config.md">the configuration docs</a>)
 and restart the container for the changes to take effect. You might wish to 
@@ -129,75 +129,16 @@ host.</p>
   --expose 4445 \
   --volume path/to/orc.data:/root/.config/orc \
   --tty orcproject/orc:latest</code></pre><p>See the <a href="https://docs.docker.com/engine/reference/commandline/run/"><code>docker run</code> documentation</a> 
-for more information.</p>
-<h2>Manual Installation</h2><p>Make sure you have the following prerequisites installed:</p>
-<ul>
-<li><a href="https://z.cash">Zcash</a></li>
-<li><a href="https://torproject.org">Tor</a></li>
-<li><a href="https://git-scm.org">Git</a></li>
-<li><a href="https://nodejs.org">Node.js LTS + NPM (6.10.x)</a></li>
-<li>Python 2.7</li>
-<li>GCC/G++/Make</li>
+for more information. If you prefer to install ORC manually, see the guide for 
+<a href="tutorial-install.html">Manual Installation</a>. Once installed, simply run <code>orc</code> with an optional 
+configuration file using the <code>--config &lt;path/to/config&gt;</code> option. See the 
+<a href="tutorial-config.html">Configuration Guide</a> for details on the format and accepted properties.</p>
+<h3>Resources</h3><ul>
+<li><a href="https://orcproject.github.io/orc/">Documentation</a></li>
+<li><a href="https://raw.githubusercontent.com/orcproject/whitepaper/master/protocol.pdf">Specification</a></li>
+<li><a href="https://raw.githubusercontent.com/orcproject/whitepaper/master/whitepaper.pdf">Whitepaper</a></li>
 </ul>
-<h3>Node.js + NPM</h3><h4>GNU+Linux &amp; Mac OSX</h4><pre class="prettyprint source"><code>wget -qO- https://raw.githubusercontent.com/creationix/nvm/v0.33.0/install.sh | bash</code></pre><p>Close your shell and open an new one. Now that you can call the <code>nvm</code> program,
-install Node.js (which comes with NPM):</p>
-<pre class="prettyprint source"><code>nvm install --lts</code></pre><h3>Build Dependencies</h3><h4>GNU+Linux</h4><p>Debian / Ubuntu / Mint / Trisquel / and Friends</p>
-<pre class="prettyprint source"><code>apt install git python build-essential</code></pre><p>Red Hat / Fedora / CentOS</p>
-<pre class="prettyprint source"><code>yum groupinstall 'Development Tools'</code></pre><p>You might also find yourself lacking a C++11 compiler - 
-<a href="http://hiltmon.com/blog/2015/08/09/c-plus-plus-11-on-centos-6-dot-6/">see this</a>.</p>
-<h4>Mac OSX</h4><pre class="prettyprint source"><code>xcode-select --install</code></pre><h3>Daemon + Utilities CLI</h3><p>This package exposes two command line programs: <code>orc</code> and <code>orctool</code>. To 
-install these, use the <code>--global</code> flag.</p>
-<pre class="prettyprint source"><code>npm install -g @orcproject/orc</code></pre><h3>Core Library</h3><p>This package exposes a module providing a complete implementation of the 
-protocol. To use it in your project, from your project's root directory, 
-install as a dependency.</p>
-<pre class="prettyprint source"><code>npm install @orcproject/orc --save</code></pre><h2>Usage</h2><h3>Command Line</h3><p>Simply run <code>orc</code> with an optional <a href="https://github.com/orcproject/orc/blob/master/doc/config.md">configuration file</a> 
-using the <code>--config &lt;path/to/config&gt;</code> option.</p>
-<h3>Spawning Child</h3><p>The easiest way to get up and running with orc is to spawn a child process 
-from your program and connect to it over the control port. This package exposes 
-a convenience method for doing this. </p>
-<pre class="prettyprint source lang-js"><code>const orc = require('@orcproject/orc');
-const { child, controller } = orc(config);
-
-// The `config` argument can be either a string path to config file to use or 
-// a JSON dictionary of config properties. See configuration documentaion.
-
-child.stdout.pipe(process.stdout); // Pipe log out put to stdout
-
-controller.on('ready', () => {
-  controller.invoke('ping', [contact], console.log); // Ping a contact
-});</code></pre><h3>Control Interface</h3><p>You can run <code>orc</code> standalone and control it from any other application over 
-its TCP control interface. See the <em>Resources</em> section below to read up on the 
-control protocol to implement it in the language of your choice. If using 
-Node.js, you can use the client bundled in this package.</p>
-<pre class="prettyprint source lang-js"><code>const orc = require('@orcproject/orc');
-const controller = new orc.control.Client();
-
-controller.on('ready', () => {
-  controller.invoke('ping', [contact], (err) => { /* handle result */ });
-});
-
-controller.connect(port);</code></pre><p>If you wish to control your <code>orc</code> node from another language, simply connect 
-to the control port over a TCP socket and use the 
-<a href="https://github.com/bookchin/boscar">BOSCAR</a> protocol to send RPC messages to 
-the node. The methods and argument signatures map directly to the <code>orc.Node</code> 
-API describe in the documentation. See <em>Resources</em> below.</p>
-<h3>Direct Implementation</h3><p>Since <code>orc</code> exposes all of the internals used to implement it, you can use 
-the same classes to directly implement your own Orc node within your project.
-Just import the package and construct a node instance with options.</p>
-<pre class="prettyprint source lang-js"><code>const orc = require('@orcproject/orc');
-const node = new orc.Node(options);
-
-node.listen(8443);
-node.join(['known_node_id', { /* contact data */ }]);</code></pre><p>Consult the documentation for a complete reference of the API exposed from the 
-<code>Node</code> object. Further documentation on usage can be found by reviewing the 
-end-to-end test suite in <code>test/node.e2e.js</code>. Note that using this package as a 
-library provides a very low level interface for the Orc protocol and is not 
-intended for casual integration with the Orc network.</p>
-<h2>Resources</h2><ul>
-<li><a href="https://orcproject.github.io/orc/">Orc Documentation</a></li>
-<li><a href="https://github.com/orcproject/orc/blob/master/doc/protocol.md">Orc Protocol Specification</a></li>
-</ul>
-<h2>License</h2><p>Orc - Onion Routed Cloud<br>Copyright (C) 2017  Gordon Hall<br>Copyright (C) 2016  Storj Labs, Inc</p>
+<h3>License</h3><p>ORC - Distributed Anonymous Cloud<br>Copyright (C) 2017  Gordon Hall<br>Copyright (C) 2016  Storj Labs, Inc</p>
 <p>This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as published
 by the Free Software Foundation, either version 3 of the License, or
